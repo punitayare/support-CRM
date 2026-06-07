@@ -28,52 +28,47 @@ def get_db():
 
 # REGISTER
 
-
 @router.post("/register")
 def register(data: RegisterRequest, db: Session = Depends(get_db)):
-    try:
-        existing = db.query(User).filter(User.email == data.email).first()
+    existing = db.query(User).filter(User.email == data.email).first()
 
-        if existing:
-            return {"error": "exists"}
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already exists")
 
-        user = User(
-            name=data.name,
-            email=data.email,
-            hashed_password=hash_password(data.password),
-            role="customer"
-        )
+    user = User(
+        name=data.name,
+        email=data.email,
+        hashed_password=hash_password(data.password),
+        role="customer"
+    )
 
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
 
-        return {"message": "ok"}
-
-    except Exception as e:
-        print("REGISTER ERROR:", str(e))
-        traceback.print_exc()
-        return {"error": str(e)}
-    
-
+    return {"message": "User created successfully"}
 
 
 
 @router.post("/login")
 def login(data: LoginRequest, db: Session = Depends(get_db)):
-    try:
-        user = db.query(User).filter(User.email == data.email).first()
+    user = db.query(User).filter(User.email == data.email).first()
 
-        if not user or not verify_password(data.password, user.hashed_password):
-            return {"error": "invalid credentials"}
+    if not user or not verify_password(data.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
-        token = create_access_token({
-            "user_id": user.id,
+    token = create_access_token({
+        "user_id": user.id,
+        "role": user.role
+    })
+
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
             "role": user.role
-        })
-
-        return {"token": token}
-
-    except Exception as e:
-        print("LOGIN ERROR:", str(e))
-        return {"error": str(e)}
+        }
+    }
