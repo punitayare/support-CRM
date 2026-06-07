@@ -8,7 +8,7 @@ engine = create_engine(
     DATABASE_URL,
     connect_args={"check_same_thread": False}
 )
-
+print("DATABASE LOADED")
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
