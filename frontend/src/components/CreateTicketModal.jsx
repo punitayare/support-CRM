@@ -39,7 +39,7 @@ export default function CreateTicketModal({
       });
     } catch (err) {
       console.error(err);
-      alert("Failed to create ticket");
+      alert("Failed to create a ticket");
     }
   };
 
