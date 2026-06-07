@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import SearchBar from "../components/SearchBar";
 
 export default function Tickets() {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // 🔥 NEW STATES (SEARCH + FILTER)
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
 
   const user = JSON.parse(localStorage.getItem("user"));
   const token = localStorage.getItem("token");
@@ -12,11 +17,14 @@ export default function Tickets() {
     try {
       setLoading(true);
 
-      const res = await axios.get("https://support-crm-q58l.onrender.com/api/tickets/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.get(
+        "https://support-crm-q58l.onrender.com/api/tickets/",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setTickets(res.data);
     } catch (error) {
@@ -31,17 +39,42 @@ export default function Tickets() {
     fetchTickets();
   }, []);
 
+  // 🔥 FIXED FILTER LOGIC
+  const filteredTickets = tickets.filter((t) => {
+    const searchText = search.toLowerCase();
+
+    const matchesSearch =
+      t.subject?.toLowerCase().includes(searchText) ||
+      t.customer_email?.toLowerCase().includes(searchText) ||
+      t.ticket_id?.toLowerCase().includes(searchText);
+
+    const matchesStatus =
+      status === "" || t.status === status;
+
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <div className="p-6">
-      {/* Header */}
+
+      {/* HEADER */}
       <h1 className="text-2xl font-bold mb-4">
         All Tickets ({user?.role})
       </h1>
 
-      {/* Loading */}
+      {/* 🔥 SEARCH BAR */}
+      <SearchBar
+        search={search}
+        setSearch={setSearch}
+        status={status}
+        setStatus={setStatus}
+        onCreateClick={() => console.log("create ticket")}
+      />
+
+      {/* LOADING */}
       {loading ? (
         <p className="text-gray-500">Loading tickets...</p>
-      ) : tickets.length === 0 ? (
+      ) : filteredTickets.length === 0 ? (
         <p className="text-gray-500">No tickets found</p>
       ) : (
         <div className="overflow-x-auto bg-white shadow rounded-xl">
@@ -57,7 +90,7 @@ export default function Tickets() {
             </thead>
 
             <tbody>
-              {tickets.map((t) => (
+              {filteredTickets.map((t) => (
                 <tr key={t.id} className="border-t hover:bg-gray-50">
                   <td className="p-3 font-medium">{t.ticket_id}</td>
                   <td className="p-3">{t.subject}</td>
@@ -78,7 +111,7 @@ export default function Tickets() {
 
                   <td className="p-3">{t.customer_email}</td>
                   <td className="p-3">
-                    {t.assigned_to ? t.assigned_to : "Unassigned"}
+                    {t.assigned_to || "Unassigned"}
                   </td>
                 </tr>
               ))}
