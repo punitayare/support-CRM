@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
+import Dashboard from "./pages/DashBoard.jsx";
 
 import UsersAdmin from "./pages/UsersAdmin.jsx";
 import AssignTickets from "./pages/AssignTickets.jsx";
