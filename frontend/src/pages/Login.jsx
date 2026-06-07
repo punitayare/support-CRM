@@ -11,6 +11,8 @@ export default function Login() {
     setLoading(true);
 
     try {
+      console.log("PASSWORD:", password);
+console.log("PASSWORD LENGTH:", password?.length);
       const res = await fetch("https://support-crm-q58l.onrender.com/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
