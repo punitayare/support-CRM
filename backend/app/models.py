@@ -33,7 +33,7 @@ class Ticket(Base):
     status = Column(String, default="Open")
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    # ✅ ADD THIS (IMPORTANT FIX)
+   
     notes = relationship(
         "Note",
         back_populates="ticket",
