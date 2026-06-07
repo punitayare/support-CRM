@@ -31,29 +31,30 @@ def get_db():
 
 @router.post("/register")
 def register(data: RegisterRequest, db: Session = Depends(get_db)):
+    try:
+        existing = db.query(User).filter(User.email == data.email).first()
 
-    if len(data.password.encode("utf-8")) > 72:
-        raise HTTPException(
-            status_code=400,
-            detail="Password too long (max 72 bytes allowed)"
+        if existing:
+            return {"error": "exists"}
+
+        user = User(
+            name=data.name,
+            email=data.email,
+            hashed_password=hash_password(data.password),
+            role="customer"
         )
 
-    existing = db.query(User).filter(User.email == data.email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already exists")
+        db.add(user)
+        db.commit()
+        db.refresh(user)
 
-    user = User(
-        name=data.name,
-        email=data.email,
-        hashed_password=hash_password(data.password),
-        role="customer"
-    )
+        return {"message": "ok"}
 
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-
-    return {"message": "User created successfully"}
+    except Exception as e:
+        print("REGISTER ERROR:", str(e))
+        traceback.print_exc()
+        return {"error": str(e)}
+    
 
 
 
