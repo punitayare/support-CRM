@@ -34,5 +34,9 @@ class TicketResponse(BaseModel):
 
 
 class TicketUpdate(BaseModel):
+    customer_name: str | None = None
+    customer_email: EmailStr | None = None
+    subject: str | None = None
+    description: str | None = None
     status: str
     note: str | None = None

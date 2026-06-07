@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 import Sidebar from "../components/SideBar";
 import Header from "../components/Header";
@@ -12,38 +12,47 @@ import api from "../api/api";
 
 export default function Dashboard() {
   const [tickets, setTickets] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-const [selectedTicket, setSelectedTicket] =
-  useState(null);
-const [search, setSearch] = useState("");
-const [status, setStatus] = useState("");
-const [isDrawerOpen, setIsDrawerOpen] =
-  useState(false);
-  
 
-  const fetchTickets = async (
-  searchValue = search,
-  statusValue = status
-) => {
-  try {
-    const response = await api.get("/api/tickets/", {
-      params: {
-        search: searchValue || undefined,
-        status: statusValue || undefined,
-      },
-    });
+  const [selectedTicketId, setSelectedTicketId] = useState(null);
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-    setTickets(response.data);
-    console.log("API Response:", response.data);
+  const fetchTickets = useCallback(
+    async (searchValue = search, statusValue = status) => {
+      try {
+        setIsLoading(true);
+        setError(null);
 
-  } catch (error) {
-    console.error(error);
-  }
-};
+        const response = await api.get("/api/tickets/", {
+          params: {
+            search: searchValue || undefined,
+            status: statusValue || undefined,
+          },
+        });
 
-useEffect(() => {
-  fetchTickets(search, status);
-}, [search, status]);
+        setTickets(response.data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load tickets");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [search, status]
+  );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchTickets(search, status);
+    }, 300); // 🔥 debounce search
+
+    return () => clearTimeout(timer);
+  }, [search, status, fetchTickets]);
 
   return (
     <div className="flex min-h-screen bg-slate-50">
@@ -55,28 +64,42 @@ useEffect(() => {
         <StatsCards tickets={tickets} />
 
         <SearchBar
-  search={search}
-  setSearch={setSearch}
-  status={status}
-  setStatus={setStatus}
-  onCreateClick={() => setIsModalOpen(true)}
-/>
-       <TicketTable
-  tickets={tickets}
-  refreshTickets={fetchTickets}
-  selectedTicket={selectedTicket}
-  onSelectTicket={(id) => {
-    setSelectedTicket(id);
-    setIsDrawerOpen(true);
-  }}
-/>
+          search={search}
+          setSearch={setSearch}
+          status={status}
+          setStatus={setStatus}
+          onCreateClick={() => setIsModalOpen(true)}
+        />
 
-<TicketDetailsDrawer
-  ticketId={selectedTicket}
-  isOpen={isDrawerOpen}
-  onClose={() => setIsDrawerOpen(false)}
-  refreshTickets={fetchTickets}
-/>
+        {/* 🔥 Loading State */}
+        {isLoading && (
+          <p className="text-gray-500 mt-4">Loading tickets...</p>
+        )}
+
+        {/* ❌ Error State */}
+        {error && (
+          <p className="text-red-500 mt-4">{error}</p>
+        )}
+
+        <TicketTable
+          tickets={tickets}
+          refreshTickets={fetchTickets}
+          selectedTicket={selectedTicketId}
+          
+  user={JSON.parse(localStorage.getItem("user"))}
+          onSelectTicket={(id) => {
+            setSelectedTicketId(id);
+            setIsDrawerOpen(true);
+          }}
+        />
+
+        <TicketDetailsDrawer
+          ticketId={selectedTicketId}
+          isOpen={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+          refreshTickets={fetchTickets}
+        />
+
         <CreateTicketModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}

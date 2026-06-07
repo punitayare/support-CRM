@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  X,
-  CalendarDays,
-  Plus,
-} from "lucide-react";
-
+import { X, CalendarDays, Plus } from "lucide-react";
 import api from "../api/api";
 
 export default function TicketDetailsDrawer({
@@ -16,13 +11,19 @@ export default function TicketDetailsDrawer({
   const [ticket, setTicket] = useState(null);
   const [status, setStatus] = useState("");
   const [note, setNote] = useState("");
+  const [showNoteBox, setShowNoteBox] = useState(false);
+
+  // ✅ SAME AUTH SOURCE AS SIDEBAR
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  // 🔐 ROLE NORMALIZATION
+  const role = (user?.role || "").toLowerCase().trim();
+
+  const canAddNote = role === "admin" || role === "agent";
 
   const fetchTicket = async () => {
     try {
-      const response = await api.get(
-        `/api/tickets/${ticketId}`
-      );
-
+      const response = await api.get(`/api/tickets/${ticketId}`);
       setTicket(response.data);
       setStatus(response.data.status);
     } catch (error) {
@@ -37,22 +38,19 @@ export default function TicketDetailsDrawer({
   }, [ticketId, isOpen]);
 
   const handleSave = async () => {
+    if (!canAddNote) return; // 🔒 safety check
+
     try {
-      await api.put(
-        `/api/tickets/${ticketId}`,
-        {
-          status,
-          note,
-        }
-      );
+      await api.put(`/api/tickets/${ticketId}`, {
+        status,
+        note,
+      });
 
       setNote("");
+      setShowNoteBox(false);
 
       fetchTicket();
-
-      if (refreshTickets) {
-        refreshTickets();
-      }
+      refreshTickets?.();
     } catch (error) {
       console.error(error);
     }
@@ -75,7 +73,7 @@ export default function TicketDetailsDrawer({
     <div className="fixed inset-0 z-50 bg-black/30 flex justify-end">
       <div className="w-[420px] bg-white h-full shadow-2xl flex flex-col overflow-hidden">
 
-        {/* Header */}
+        {/* HEADER */}
         <div className="p-6 border-b flex items-start justify-between">
           <div>
             <h2 className="text-3xl font-bold text-slate-900">
@@ -87,9 +85,7 @@ export default function TicketDetailsDrawer({
               <span>
                 Created on{" "}
                 {ticket?.created_at
-                  ? new Date(
-                      ticket.created_at
-                    ).toLocaleString()
+                  ? new Date(ticket.created_at).toLocaleString()
                   : "-"}
               </span>
             </div>
@@ -97,10 +93,9 @@ export default function TicketDetailsDrawer({
 
           <div className="flex items-center gap-3">
             <span
-              className={`
-                px-4 py-1 rounded-full text-sm font-medium
-                ${getStatusColor(status)}
-              `}
+              className={`px-4 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                status
+              )}`}
             >
               {status}
             </span>
@@ -115,36 +110,20 @@ export default function TicketDetailsDrawer({
           <div className="p-6">Loading...</div>
         ) : (
           <>
-            {/* Scroll Area */}
+            {/* CONTENT */}
             <div className="flex-1 overflow-y-auto p-6 space-y-8">
 
-              {/* Ticket Details */}
+              {/* TICKET DETAILS */}
               <section>
                 <h3 className="font-semibold text-lg border-l-4 border-indigo-600 pl-3 mb-5">
                   Ticket Details
                 </h3>
 
                 <div className="space-y-5">
-
-                  <InfoItem
-                    label="Customer Name"
-                    value={ticket.customer_name}
-                  />
-
-                  <InfoItem
-                    label="Email"
-                    value={ticket.customer_email}
-                  />
-
-                  <InfoItem
-                    label="Subject"
-                    value={ticket.subject}
-                  />
-
-                  <InfoItem
-                    label="Description"
-                    value={ticket.description}
-                  />
+                  <InfoItem label="Customer Name" value={ticket.customer_name} />
+                  <InfoItem label="Email" value={ticket.customer_email} />
+                  <InfoItem label="Subject" value={ticket.subject} />
+                  <InfoItem label="Description" value={ticket.description} />
 
                   <div>
                     <label className="text-slate-500 text-sm block mb-2">
@@ -153,83 +132,59 @@ export default function TicketDetailsDrawer({
 
                     <select
                       value={status}
-                      onChange={(e) =>
-                        setStatus(e.target.value)
-                      }
+                      onChange={(e) => setStatus(e.target.value)}
                       className="
-                        w-full
-                        h-12
-                        rounded-xl
-                        border
-                        border-slate-300
-                        px-4
-                        outline-none
-                        focus:ring-2
-                        focus:ring-indigo-500
+                        w-full h-12 rounded-xl border border-slate-300
+                        px-4 outline-none focus:ring-2 focus:ring-indigo-500
                       "
                     >
-                      <option value="Open">
-                        Open
-                      </option>
-
-                      <option value="In Progress">
-                        In Progress
-                      </option>
-
-                      <option value="Closed">
-                        Closed
-                      </option>
+                      <option value="Open">Open</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Closed">Closed</option>
                     </select>
                   </div>
                 </div>
               </section>
 
-              {/* Notes */}
+              {/* NOTES */}
               <section>
                 <div className="flex justify-between items-center mb-5">
                   <h3 className="font-semibold text-lg border-l-4 border-indigo-600 pl-3">
                     Notes & Updates
                   </h3>
 
-                  <button
-                    className="
-                      flex
-                      items-center
-                      gap-2
-                      bg-indigo-600
-                      text-white
-                      px-4
-                      py-2
-                      rounded-lg
-                    "
-                  >
-                    <Plus size={16} />
-                    Add Note
-                  </button>
+                  {/* 🔐 ONLY ADMIN / AGENT */}
+                  {canAddNote && (
+                    <button
+                      onClick={() => setShowNoteBox(true)}
+                      className="
+                        flex items-center gap-2
+                        bg-indigo-600 text-white
+                        px-4 py-2 rounded-lg
+                        hover:bg-indigo-700 transition
+                      "
+                    >
+                      <Plus size={16} />
+                      Add Note
+                    </button>
+                  )}
                 </div>
 
                 <div className="relative pl-8">
                   <div className="absolute left-3 top-0 bottom-0 w-px bg-slate-200" />
 
                   {ticket.notes?.map((item) => (
-                    <div
-                      key={item.id}
-                      className="relative mb-8"
-                    >
+                    <div key={item.id} className="relative mb-8">
                       <div className="absolute -left-[27px] top-1 h-6 w-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold">
                         N
                       </div>
 
                       <div>
                         <div className="flex justify-between">
-                          <h4 className="font-semibold">
-                            Support Agent
-                          </h4>
+                          <h4 className="font-semibold">Support Agent</h4>
 
                           <span className="text-sm text-slate-400">
-                            {new Date(
-                              item.created_at
-                            ).toLocaleString()}
+                            {new Date(item.created_at).toLocaleString()}
                           </span>
                         </div>
 
@@ -241,52 +196,55 @@ export default function TicketDetailsDrawer({
                   ))}
 
                   {!ticket.notes?.length && (
-                    <p className="text-slate-500">
-                      No notes available.
-                    </p>
+                    <p className="text-slate-500">No notes available.</p>
                   )}
                 </div>
               </section>
             </div>
 
-            {/* Bottom Note Box */}
-            <div className="border-t p-5 bg-white">
-              <textarea
-                rows={4}
-                value={note}
-                onChange={(e) =>
-                  setNote(e.target.value)
-                }
-                placeholder="Add a note..."
-                className="
-                  w-full
-                  border
-                  border-slate-300
-                  rounded-xl
-                  p-4
-                  resize-none
-                  focus:ring-2
-                  focus:ring-indigo-500
-                  outline-none
-                "
-              />
+            {/* NOTE INPUT */}
+            {showNoteBox && canAddNote && (
+              <div className="border-t p-5 bg-white">
+                <textarea
+                  rows={4}
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Add a note..."
+                  className="
+                    w-full border border-slate-300
+                    rounded-xl p-4 resize-none
+                    focus:ring-2 focus:ring-indigo-500
+                    outline-none
+                  "
+                />
 
-              <button
-                onClick={handleSave}
-                className="
-                  mt-4
-                  w-full
-                  bg-indigo-600
-                  hover:bg-indigo-700
-                  text-white
-                  h-12
-                  rounded-xl
-                  font-medium
-                "
-              >
-                Save Changes
-              </button>
-            </div>
+                <div className="flex gap-3 mt-4">
+                  <button
+                    onClick={() => {
+                      setShowNoteBox(false);
+                      setNote("");
+                    }}
+                    className="
+                      w-1/2 h-12 rounded-xl
+                      border border-slate-300
+                      text-slate-600
+                    "
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    onClick={handleSave}
+                    className="
+                      w-1/2 bg-indigo-600 hover:bg-indigo-700
+                      text-white h-12 rounded-xl font-medium
+                    "
+                  >
+                    Save Note
+                  </button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -297,13 +255,8 @@ export default function TicketDetailsDrawer({
 function InfoItem({ label, value }) {
   return (
     <div>
-      <p className="text-sm text-slate-500 mb-1">
-        {label}
-      </p>
-
-      <p className="text-slate-900 font-medium">
-        {value || "-"}
-      </p>
+      <p className="text-sm text-slate-500 mb-1">{label}</p>
+      <p className="text-slate-900 font-medium">{value || "-"}</p>
     </div>
   );
 }
