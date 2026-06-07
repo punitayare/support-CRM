@@ -35,8 +35,8 @@ def create_admin():
 
     db.close()
 app.include_router(ticket_router)
-app.include_router(auth_router)  # ✅ ADD THIS
-app.include_router(user_router)  # ✅ ADD THIS
+app.include_router(auth_router)  #
+app.include_router(user_router)  # 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
