@@ -32,6 +32,7 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
+    console.log("LOGIN CLICKED");
   };
 
   // 🔥 ONLY ADMIN DEMO
