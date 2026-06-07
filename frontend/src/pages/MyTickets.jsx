@@ -12,7 +12,7 @@ export default function MyTickets() {
       setLoading(true);
 
       const res = await axios.get(
-        "http://localhost:8000/api/tickets/my",
+        "https://support-crm-q58l.onrender.com/api/tickets/my",
         {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -37,7 +37,7 @@ export default function AssignTickets() {
   // 🔥 assign ticket
   const assignTicket = async (ticketId, agentId) => {
     const res = await fetch(
-      `http://support-crm-q58l.onrender.com/api/tickets/${ticketId}/assign?agent_id=${agentId}`,
+      `https://support-crm-q58l.onrender.com/api/tickets/${ticketId}/assign?agent_id=${agentId}`,
       {
         method: "PUT",
         headers: {
