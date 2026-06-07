@@ -11,7 +11,7 @@ export default function AgentTickets() {
     try {
       setLoading(true);
 
-      const res = await axios.get("http://localhost:8000/api/tickets/", {
+      const res = await axios.get("http://support-crm-q58l.onrender.com/api/tickets/", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

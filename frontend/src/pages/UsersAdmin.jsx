@@ -9,7 +9,7 @@ export default function UsersAdmin() {
   // 🔥 fetch users (you must have GET /api/users endpoint)
   const fetchUsers = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/users", {
+      const res = await fetch("http://support-crm-q58l.onrender.com/api/users", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
