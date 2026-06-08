@@ -47,15 +47,7 @@ export default function Sidebar() {
         
 
         {/* 👤 CUSTOMER VIEW (optional future page) */}
-        {user?.role === "customer" && (
-          <div
-            onClick={() => navigate("/my")}
-            className="flex items-center gap-3 p-3 text-blue-600 cursor-pointer hover:bg-blue-50 rounded-xl"
-          >
-            <User size={20} />
-            My Tickets
-          </div>
-        )}
+        
 
         {/* 🛠️ AGENT VIEW */}
         {user?.role === "agent" && (
