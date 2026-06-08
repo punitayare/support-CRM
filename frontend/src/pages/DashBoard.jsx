@@ -1,3 +1,15 @@
+import { useEffect, useState, useCallback } from "react";
+
+import Sidebar from "../components/SideBar";
+import Header from "../components/Header";
+import StatsCards from "../components/StatsCards";
+import SearchBar from "../components/SearchBar";
+import TicketTable from "../components/TicketTable";
+import CreateTicketModal from "../components/CreateTicketModal";
+import TicketDetailsDrawer from "../components/TicketsDetailDrawer";
+
+import api from "../api/api";
+
 export default function Dashboard() {
   const [tickets, setTickets] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -8,6 +20,8 @@ export default function Dashboard() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fetchTickets = useCallback(
     async (searchValue = search, statusValue = status) => {
@@ -41,24 +55,37 @@ export default function Dashboard() {
   }, [search, status, fetchTickets]);
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
+    <div className="flex min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
 
-      {/* SIDEBAR */}
-      <div className="hidden md:block shadow-xl">
-        <Sidebar />
-      </div>
+      {/* SIDEBAR (NEW FIXED SYSTEM) */}
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
       {/* MAIN */}
-      <main className="flex-1 p-3 sm:p-6 w-full overflow-x-hidden">
+      <main className="flex-1 ml-0 md:ml-72 p-3 sm:p-6 w-full overflow-x-hidden">
 
-        {/* HEADER */}
-        <div className="mb-4 sm:mb-6 p-3 sm:p-5 rounded-2xl bg-white/60 backdrop-blur-md shadow-lg border border-white">
-          <Header />
+        {/* TOP BAR */}
+        <div className="flex items-center gap-3 mb-4 sm:mb-6">
+
+          {/* MOBILE MENU BUTTON */}
+          <button
+            className="md:hidden text-2xl p-2"
+            onClick={() => setSidebarOpen(true)}
+          >
+            ☰
+          </button>
+
+          <div className="flex-1">
+            <Header />
+          </div>
+
         </div>
 
         {/* STATS */}
         <div className="mb-4 sm:mb-6">
-          <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-3 sm:p-4 border border-gray-100 overflow-x-auto">
+          <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-3 sm:p-4 border border-gray-100">
             <StatsCards tickets={tickets} />
           </div>
         </div>
@@ -90,7 +117,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* TABLE WRAPPER (IMPORTANT FOR MOBILE SCROLL) */}
+        {/* TABLE */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-x-auto hover:shadow-2xl transition">
           <div className="min-w-[700px]">
             <TicketTable
@@ -120,6 +147,7 @@ export default function Dashboard() {
           onClose={() => setIsModalOpen(false)}
           refreshTickets={fetchTickets}
         />
+
       </main>
     </div>
   );
