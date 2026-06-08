@@ -1,4 +1,4 @@
-from operator import or_
+from sqlalchemy import or_
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
