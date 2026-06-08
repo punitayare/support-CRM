@@ -176,8 +176,8 @@ export default function TicketDetailsDrawer({
                     <option value="In Progress">
                       In Progress
                     </option>
-                    <option value="Resolved">
-                      Resolved
+                    <option value="Closed">
+                      Closed
                     </option>
                   </select>
 
