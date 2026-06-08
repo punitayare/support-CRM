@@ -10,18 +10,23 @@ export default function MyTickets() {
   const fetchMyTickets = async () => {
     try {
       setLoading(true);
-const res = await axios.get(
-  "https://support-crm-q58l.onrender.com/api/tickets/",
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-);
+
+      const res = await axios.get(
+        "https://support-crm-q58l.onrender.com/api/tickets/my",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       console.log("MY TICKETS RESPONSE:", res.data);
 
-      setTickets(Array.isArray(res.data) ? res.data : []);
+      if (Array.isArray(res.data)) {
+        setTickets(res.data);
+      } else {
+        setTickets([]);
+      }
     } catch (err) {
       console.error("MY TICKETS ERROR:", err);
 
@@ -49,12 +54,15 @@ const res = await axios.get(
       return "bg-orange-100 text-orange-700";
 
     if (
-      status === "Closed"
+      status === "Closed" ||
+      status === "Resolved"
     )
       return "bg-green-100 text-green-700";
 
     return "bg-gray-100 text-gray-700";
   };
+
+  console.log("RENDERING TICKETS:", tickets);
 
   return (
     <div className="p-6">
@@ -75,7 +83,7 @@ const res = await axios.get(
           {tickets.map((ticket) => (
             <div
               key={ticket.ticket_id}
-              className="bg-white p-5 rounded-xl shadow"
+              className="bg-white p-5 rounded-xl shadow border"
             >
               <div className="flex justify-between items-start">
                 <div>
@@ -89,7 +97,7 @@ const res = await axios.get(
                 </div>
 
                 <span
-                  className={`px-3 py-1 rounded-full text-sm ${getStatusColor(
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
                     ticket.status
                   )}`}
                 >
@@ -100,20 +108,31 @@ const res = await axios.get(
               <div className="mt-4 space-y-2">
                 <p className="text-sm">
                   <strong>Description:</strong>{" "}
-                  {ticket.description}
+                  {ticket.description || "-"}
+                </p>
+
+                <p className="text-sm">
+                  <strong>Customer:</strong>{" "}
+                  {ticket.customer_name}
+                </p>
+
+                <p className="text-sm">
+                  <strong>Email:</strong>{" "}
+                  {ticket.customer_email}
                 </p>
 
                 <p className="text-sm">
                   <strong>Assigned Agent:</strong>{" "}
-                  {ticket.agent_name ||
-                    "Not Assigned"}
+                  {ticket.agent_name || "Not Assigned"}
                 </p>
 
                 <p className="text-sm">
                   <strong>Created:</strong>{" "}
-                  {new Date(
-                    ticket.created_at
-                  ).toLocaleString()}
+                  {ticket.created_at
+                    ? new Date(
+                        ticket.created_at
+                      ).toLocaleString()
+                    : "-"}
                 </p>
               </div>
             </div>
