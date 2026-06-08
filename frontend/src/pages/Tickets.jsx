@@ -6,7 +6,6 @@ export default function Tickets() {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔥 NEW STATES (SEARCH + FILTER)
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
 
@@ -26,6 +25,8 @@ export default function Tickets() {
         }
       );
 
+      console.log("Tickets:", res.data);
+
       setTickets(res.data);
     } catch (error) {
       console.error("Error fetching tickets:", error);
@@ -39,30 +40,29 @@ export default function Tickets() {
     fetchTickets();
   }, []);
 
-  // 🔥 FIXED FILTER LOGIC
   const filteredTickets = tickets.filter((t) => {
-    const searchText = search.toLowerCase();
+    const searchText = search.toLowerCase().trim();
 
     const matchesSearch =
+      !searchText ||
+      t.ticket_id?.toLowerCase().includes(searchText) ||
       t.subject?.toLowerCase().includes(searchText) ||
-      t.customer_email?.toLowerCase().includes(searchText) ||
-      t.ticket_id?.toLowerCase().includes(searchText);
+      t.customer_name?.toLowerCase().includes(searchText) ||
+      t.customer_email?.toLowerCase().includes(searchText);
 
     const matchesStatus =
-      status === "" || t.status === status;
+      !status ||
+      t.status?.toLowerCase() === status.toLowerCase();
 
     return matchesSearch && matchesStatus;
   });
 
   return (
     <div className="p-6">
-
-      {/* HEADER */}
       <h1 className="text-2xl font-bold mb-4">
         All Tickets ({user?.role})
       </h1>
 
-      {/* 🔥 SEARCH BAR */}
       <SearchBar
         search={search}
         setSearch={setSearch}
@@ -71,7 +71,6 @@ export default function Tickets() {
         onCreateClick={() => console.log("create ticket")}
       />
 
-      {/* LOADING */}
       {loading ? (
         <p className="text-gray-500">Loading tickets...</p>
       ) : filteredTickets.length === 0 ? (
@@ -91,16 +90,25 @@ export default function Tickets() {
 
             <tbody>
               {filteredTickets.map((t) => (
-                <tr key={t.id} className="border-t hover:bg-gray-50">
-                  <td className="p-3 font-medium">{t.ticket_id}</td>
-                  <td className="p-3">{t.subject}</td>
+                <tr
+                  key={t.ticket_id}
+                  className="border-t hover:bg-gray-50"
+                >
+                  <td className="p-3 font-medium">
+                    {t.ticket_id}
+                  </td>
+
+                  <td className="p-3">
+                    {t.subject}
+                  </td>
 
                   <td className="p-3">
                     <span
                       className={`px-2 py-1 rounded text-xs font-semibold ${
-                        t.status === "open"
+                        t.status?.toLowerCase() === "open"
                           ? "bg-red-100 text-red-600"
-                          : t.status === "in_progress"
+                          : t.status?.toLowerCase() === "in progress" ||
+                            t.status?.toLowerCase() === "in_progress"
                           ? "bg-yellow-100 text-yellow-700"
                           : "bg-green-100 text-green-700"
                       }`}
@@ -109,9 +117,12 @@ export default function Tickets() {
                     </span>
                   </td>
 
-                  <td className="p-3">{t.customer_email}</td>
                   <td className="p-3">
-                    {t.assigned_to || "Unassigned"}
+                    {t.customer_name || "-"}
+                  </td>
+
+                  <td className="p-3">
+                    {t.agent_name || "Unassigned"}
                   </td>
                 </tr>
               ))}
