@@ -68,7 +68,7 @@ def login(
 
     if not verify_password(
         form_data.password,
-        user.password
+        user.hashed_password
     ):
         raise HTTPException(
             status_code=401,
