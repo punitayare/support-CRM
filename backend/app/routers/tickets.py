@@ -99,14 +99,20 @@ def get_all_tickets_route(
 # 🔵 CUSTOMER MY TICKETS (DEDICATED ENDPOINT)
 # FRONTEND: MyTickets.jsx (CUSTOMER PAGE)
 # =========================================================
+
+# =========================================================
+# 🟠 AGENT MY ASSIGNED TICKETS
+# FRONTEND: AgentTickets.jsx
+# =========================================================
 @router.get("/my")
 def get_my_tickets(
     db: Session = Depends(get_db),
     user=Depends(get_current_user)
 ):
+    print("CURRENT USER:", user)
 
-    if user["role"] != "customer":
-        raise HTTPException(403, "Only customers allowed")
+    if user["role"].lower() != "customer":
+        raise HTTPException(status_code=403, detail="Only customers allowed")
 
     tickets = (
         db.query(Ticket)
@@ -116,6 +122,8 @@ def get_my_tickets(
         .all()
     )
 
+    print("TICKETS FOUND:", len(tickets))
+
     return [
         {
             "ticket_id": t.ticket_id,
@@ -123,48 +131,14 @@ def get_my_tickets(
             "status": t.status,
             "created_at": t.created_at,
             "customer_name": t.customer_name,
+            "customer_email": t.customer_email,
             "assigned_to": t.assigned_to,
             "agent_name": t.agent.name if t.agent else None,
             "description": t.description,
+            "user_id": t.user_id,
         }
         for t in tickets
     ]
-
-
-# =========================================================
-# 🟠 AGENT MY ASSIGNED TICKETS
-# FRONTEND: AgentTickets.jsx
-# =========================================================
-@router.get("/agent/my")
-def get_agent_tickets(
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user)
-):
-
-    if user["role"] != "agent":
-        raise HTTPException(403, "Only agents allowed")
-
-    tickets = (
-        db.query(Ticket)
-        .options(joinedload(Ticket.agent))
-        .filter(Ticket.assigned_to == user["user_id"])
-        .order_by(Ticket.created_at.desc())
-        .all()
-    )
-
-    return [
-        {
-            "ticket_id": t.ticket_id,
-            "subject": t.subject,
-            "status": t.status,
-            "created_at": t.created_at,
-            "customer_name": t.customer_name,
-            "assigned_to": t.assigned_to,
-            "agent_name": t.agent.name if t.agent else None,
-        }
-        for t in tickets
-    ]
-
 
 # =========================================================
 # 🔍 GET SINGLE TICKET (DETAIL VIEW PAGE)
