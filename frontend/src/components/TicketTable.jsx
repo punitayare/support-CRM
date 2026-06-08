@@ -67,7 +67,7 @@ export default function TicketTable({
           >
             {/* ID */}
             <div className="p-2 font-medium text-gray-700">
-              #{ticket.ticket_id}
+              {ticket.ticket_id}
             </div>
 
             {/* CUSTOMER */}
