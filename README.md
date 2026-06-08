@@ -8,25 +8,30 @@ A production-ready **Customer Support Ticketing System** built with:
 - 🧠 SQLAlchemy ORM
 - 🔐 JWT Authentication + Role-Based Access Control (RBAC)
 
-This project simulates a real-world SaaS support system where users raise tickets, admins assign them, and agents resolve them.
+This system simulates a real-world SaaS support platform where:
+- Customers raise tickets
+- Admins assign tickets
+- Agents resolve tickets
 
 ---
 
-# 🌐 Live System Architecture
+# 🌐 System Architecture
 
 ## 🏗️ High-Level Architecture
+
+```
             ┌──────────────────────────────┐
             │      React Frontend          │
             │      (Vercel Hosted)         │
             │  - Dashboard UI              │
             │  - Ticket Management         │
             └─────────────┬────────────────┘
-                          │  Axios / REST API
+                          │  REST API (Axios)
                           ▼
             ┌──────────────────────────────┐
             │      FastAPI Backend         │
             │      (Render Hosted)         │
-            │  - Auth (JWT)                │
+            │  - JWT Auth                  │
             │  - RBAC Middleware           │
             │  - Ticket APIs               │
             └─────────────┬────────────────┘
@@ -37,15 +42,16 @@ This project simulates a real-world SaaS support system where users raise ticket
             │   (Render Cloud DB)          │
             │  - Users                     │
             │  - Tickets                  │
-            │  - Roles                    │
             └──────────────────────────────┘
-
+```
 
 ---
 
 # 📁 Project Structure
 
 ## 🖥️ Backend Structure
+
+```
 backend/
 │── app/
 │   │── main.py
@@ -67,7 +73,7 @@ backend/
 │   │   ├── ticket.py
 │   │
 │   │── api/
-│   │   │── routes/
+│   │   ├── routes/
 │   │   │   ├── auth.py
 │   │   │   ├── users.py
 │   │   │   ├── tickets.py
@@ -79,53 +85,51 @@ backend/
 │
 │── requirements.txt
 │── .env
-
-
+```
 
 ---
 
 ## 🎨 Frontend Structure
 
-![Frontend Structure](sandbox:/mnt/data/53f396ac-f674-4469-876a-29cb0b4d0ec7.png)
+```
 frontend/
 │
 ├── src/
-│ ├── api/
-│ │ └── api.js
-│ │
-│ ├── components/
-│ │ ├── Header.jsx
-│ │ ├── SideBar.jsx
-│ │ ├── SearchBar.jsx
-│ │ ├── StatsCards.jsx
-│ │ ├── TicketTable.jsx
-│ │ └── TicketDetailsDrawer.jsx
-│ │
-│ ├── pages/
-│ │ ├── Login.jsx
-│ │ ├── Register.jsx
-│ │ ├── Dashboard.jsx
-│ │ ├── Tickets.jsx
-│ │ ├── MyTickets.jsx
-│ │ ├── AgentTickets.jsx
-│ │ ├── AssignTickets.jsx
-│ │ └── UsersAdmin.jsx
-│ │
-│ ├── App.jsx
-│ ├── main.jsx
-│ └── App.css
+│   ├── api/
+│   │   └── api.js
+│   │
+│   ├── components/
+│   │   ├── Header.jsx
+│   │   ├── SideBar.jsx
+│   │   ├── SearchBar.jsx
+│   │   ├── StatsCards.jsx
+│   │   ├── TicketTable.jsx
+│   │   └── TicketDetailsDrawer.jsx
+│   │
+│   ├── pages/
+│   │   ├── Login.jsx
+│   │   ├── Register.jsx
+│   │   ├── Dashboard.jsx
+│   │   ├── Tickets.jsx
+│   │   ├── MyTickets.jsx
+│   │   ├── AgentTickets.jsx
+│   │   ├── AssignTickets.jsx
+│   │   └── UsersAdmin.jsx
+│   │
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── App.css
 │
 ├── package.json
 └── vite.config.js
-
+```
 
 ---
 
-# 🚀 Features
+# 🚀 Core Features
 
-## 🔐 Authentication System
-- User Registration
-- Secure Login using JWT
+## 🔐 Authentication
+- JWT Login system
 - Role-based access:
   - 👤 Customer
   - 🧑‍💼 Agent
@@ -133,137 +137,58 @@ frontend/
 
 ---
 
-## 🎫 Ticket System (Core Feature)
+## 🎫 Ticket System
 
-### Customers can:
+### Customers:
 - Create tickets
-- View only their tickets
-- Track status updates
+- View own tickets
+- Track status
 
-### Agents can:
-- View assigned tickets only
-- Update ticket status
+### Agents:
+- View assigned tickets
+- Update status
 - Add resolution notes
 
-### Admins can:
+### Admin:
 - View all tickets
-- Assign tickets to agents
+- Assign tickets
 - Delete tickets
 
 ---
 
-## 🔍 Smart Filtering & Search
-- Filter by status (Open / In Progress / Resolved)
+## 🔍 Search & Filtering
+- Filter by status
 - Search by:
   - Subject
-  - Customer name
+  - Name
   - Email
   - Ticket ID
 
 ---
 
-## 👨‍💼 Admin Control Panel
-- Manage users
-- Assign agents to tickets
-- Full system visibility
+# 🔌 API Reference
 
----
-
-# 🔌 Backend API Reference
-
-## 🔐 Auth APIs
+## Auth APIs
+```http
 POST /api/auth/register
 POST /api/auth/login
+```
 
-
----
-
-## 🎫 Ticket APIs
-
-### Create Ticket
-
-POST /api/tickets/
-
-
-### Get Tickets (Role-aware)
-
-GET /api/tickets/
-
-
-### Get Single Ticket
-
-GET /api/tickets/{ticket_id}
-
-
-### Update Ticket (Agent/Admin)
-
-PUT /api/tickets/{ticket_id}
-
-
-### Delete Ticket (Admin Only)
-
+## Ticket APIs
+```http
+POST   /api/tickets/
+GET    /api/tickets/
+GET    /api/tickets/{ticket_id}
+PUT    /api/tickets/{ticket_id}
 DELETE /api/tickets/{ticket_id}
-
-
-### Assign Ticket (Admin Only)
-
-PUT /api/tickets/{ticket_id}/assign?agent_id=1
-
+PUT    /api/tickets/{ticket_id}/assign?agent_id=1
+```
 
 ---
 
-# 🧠 Core Backend Logic (Important)
+# 🧠 Core Backend Logic
 
 ## 🔹 Role-Based Filtering
-- Customers → only their tickets
-- Agents → only assigned tickets
-- Admin → all tickets
-
----
-# 📌 Support CRM System
-
-A full-stack **Customer Support Ticketing CRM System** built using **FastAPI, SQLAlchemy, PostgreSQL, and React (Vite)** with full **role-based access control (RBAC)** and cloud deployment (Render + Vercel).
-
----
-
-## 🚀 Features
-
-- 🔐 JWT Authentication
-- 🧠 Role-Based Access Control (Customer / Agent / Admin)
-- 🎫 Ticket Management System
-- 🔍 Advanced Search (subject, email, ticket_id, name)
-- 📊 Status Tracking (Open / In Progress / Resolved)
-- 🌐 Full-stack deployment (Render + Vercel)
-
----
-
-## 🗄️ Database Schema
-
-### Users Table
-```sql
-id
-name
-email
-password (hashed)
-role
-```
-
-### Tickets Table
-```sql
-ticket_id
-subject
-status
-customer_name
-customer_email
-user_id
-assigned_to
-created_at
-updated_at
-```
-
----
-
-## 🔐 Role-Based Filtering Logic
 
 ```python
 if user["role"] == "customer":
@@ -276,8 +201,6 @@ elif user["role"] == "agent":
 ---
 
 ## 🔍 Search Logic
-
-Uses SQLAlchemy `ilike()` for flexible searching:
 
 ```python
 query.filter(
@@ -292,103 +215,101 @@ query.filter(
 
 ---
 
-## 🔐 Authentication Flow
+# 🔐 Authentication Flow
 
-```text
+```
 Login Request
-     ↓
-JWT Token Generated
-     ↓
+   ↓
+JWT Generated
+   ↓
 Stored in LocalStorage
-     ↓
+   ↓
 Sent via Axios Headers
-     ↓
-Backend validates token
-     ↓
-Role-based access granted
+   ↓
+Backend Validates Token
+   ↓
+Role-Based Access Granted
 ```
 
 ---
 
-## ⚙️ Deployment
+# ⚙️ Deployment
 
-### 🚀 Backend (Render)
+## 🚀 Backend (Render)
 
 - FastAPI (Uvicorn)
 - PostgreSQL (Render DB)
 
-#### Environment Variables
+### Environment Variables
 ```env
 DATABASE_URL=your_database_url
 SECRET_KEY=your_secret_key
 ```
 
-#### Run Command
+### Run Command
 ```bash
 uvicorn app.main:app --host 0.0.0.0 --port $PORT
 ```
 
 ---
 
-### 🌐 Frontend (Vercel)
+## 🌐 Frontend (Vercel)
 
 - React (Vite)
 
-#### Environment Variables
+### Environment Variables
 ```env
 VITE_API_URL=https://your-backend-url
 ```
 
 ---
 
-## 🧪 Key Technical Highlights
+# 🧪 Tech Stack
 
-```text
-⚡ SQLAlchemy ORM
-🔐 JWT Authentication
-🧠 Role-Based Access Control (RBAC)
-🔄 RESTful API Architecture
-📦 Modular Backend Structure
-🌍 Cloud Deployment (Render + Vercel)
+```
+⚡ FastAPI
+⚛️ React (Vite)
+🐘 PostgreSQL
+🧠 SQLAlchemy
+🔐 JWT Auth
+🌍 Render + Vercel
 ```
 
 ---
 
-## 📈 System Workflow
+# 📈 System Workflow
 
-```text
+```
 User creates ticket
-        ↓
+      ↓
 Admin assigns ticket
-        ↓
+      ↓
 Agent resolves ticket
-        ↓
+      ↓
 User tracks status
 ```
 
 ---
 
-## 🚀 Future Enhancements
+# 🚀 Future Enhancements
 
-```text
-🔔 Real-time notifications (WebSockets)
-📧 Email alerts for ticket updates
-💬 Internal ticket chat system
-📊 Analytics dashboard (charts)
+```
+🔔 WebSocket notifications
+📧 Email alerts
+💬 Internal chat system
+📊 Analytics dashboard
 ⏱️ SLA tracking
-📎 File attachments in tickets
+📎 File attachments
 ```
 
 ---
 
-## 🏁 Conclusion
+# 🏁 Conclusion
 
-This Support CRM is a **production-grade full-stack system** demonstrating:
+A **production-grade CRM system** demonstrating:
 
-- Real-world backend engineering
-- Scalable database design
+- Real-world backend architecture
 - Secure authentication system
+- Scalable database design
 - Role-based workflow automation
-- Cloud deployment architecture
-
-👉 It closely simulates enterprise-level customer support platforms.
+- Cloud deployment (Render + Vercel)
