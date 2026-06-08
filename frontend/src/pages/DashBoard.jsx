@@ -16,7 +16,6 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
@@ -37,7 +36,6 @@ export default function Dashboard() {
 
         setTickets(response.data);
       } catch (err) {
-        console.error(err);
         setError("Failed to load tickets");
       } finally {
         setIsLoading(false);
@@ -49,50 +47,75 @@ export default function Dashboard() {
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchTickets(search, status);
-    }, 300); // 🔥 debounce search
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [search, status, fetchTickets]);
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar />
+    <div className="flex min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
 
+      {/* SIDEBAR */}
+      <div className="shadow-xl">
+        <Sidebar />
+      </div>
+
+      {/* MAIN */}
       <main className="flex-1 p-6">
-        <Header />
 
-        <StatsCards tickets={tickets} />
+        {/* HEADER (Glass effect wrapper) */}
+        <div className="mb-6 p-5 rounded-2xl bg-white/60 backdrop-blur-md shadow-lg border border-white">
+          <Header />
+        </div>
 
-        <SearchBar
-          search={search}
-          setSearch={setSearch}
-          status={status}
-          setStatus={setStatus}
-          onCreateClick={() => setIsModalOpen(true)}
-        />
+        {/* STATS */}
+        <div className="mb-6">
+          <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-4 border border-gray-100">
+            <StatsCards tickets={tickets} />
+          </div>
+        </div>
 
-        {/* 🔥 Loading State */}
+        {/* SEARCH BAR */}
+        <div className="mb-6">
+          <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-100 hover:shadow-lg transition">
+            <SearchBar
+              search={search}
+              setSearch={setSearch}
+              status={status}
+              setStatus={setStatus}
+              onCreateClick={() => setIsModalOpen(true)}
+            />
+          </div>
+        </div>
+
+        {/* STATES */}
         {isLoading && (
-          <p className="text-gray-500 mt-4">Loading tickets...</p>
+          <div className="p-4 mb-4 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 animate-pulse">
+            Loading tickets...
+          </div>
         )}
 
-        {/* ❌ Error State */}
         {error && (
-          <p className="text-red-500 mt-4">{error}</p>
+          <div className="p-4 mb-4 rounded-xl bg-red-50 text-red-600 border border-red-100">
+            {error}
+          </div>
         )}
 
-        <TicketTable
-          tickets={tickets}
-          refreshTickets={fetchTickets}
-          selectedTicket={selectedTicketId}
-          
-  user={JSON.parse(localStorage.getItem("user"))}
-          onSelectTicket={(id) => {
-            setSelectedTicketId(id);
-            setIsDrawerOpen(true);
-          }}
-        />
+        {/* TICKETS TABLE */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition">
+          <TicketTable
+            tickets={tickets}
+            refreshTickets={fetchTickets}
+            selectedTicket={selectedTicketId}
+            user={JSON.parse(localStorage.getItem("user"))}
+            onSelectTicket={(id) => {
+              setSelectedTicketId(id);
+              setIsDrawerOpen(true);
+            }}
+          />
+        </div>
 
+        {/* DRAWER */}
         <TicketDetailsDrawer
           ticketId={selectedTicketId}
           isOpen={isDrawerOpen}
@@ -100,6 +123,7 @@ export default function Dashboard() {
           refreshTickets={fetchTickets}
         />
 
+        {/* MODAL */}
         <CreateTicketModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
