@@ -30,6 +30,23 @@ export default function TicketTable({
     }
   };
 
+  // 🔥 ROLE-BASED FILTER (frontend safety layer)
+  const filteredTickets = tickets.filter((t) => {
+    if (!user) return false;
+
+    if (user.role === "admin") return true;
+
+    if (user.role === "customer") {
+      return t.user_id === user.user_id;
+    }
+
+    if (user.role === "agent") {
+      return t.assigned_to === user.user_id;
+    }
+
+    return false;
+  });
+
   return (
     <div className="bg-white rounded-2xl shadow overflow-hidden">
       <table className="w-full">
@@ -41,7 +58,6 @@ export default function TicketTable({
             <th className="p-4 text-left">Status</th>
             <th className="p-4 text-left">Date</th>
 
-            {/* Only admin sees actions header */}
             {user?.role === "admin" && (
               <th className="p-4 text-left">Actions</th>
             )}
@@ -49,7 +65,7 @@ export default function TicketTable({
         </thead>
 
         <tbody>
-          {tickets.map((ticket) => (
+          {filteredTickets.map((ticket) => (
             <tr
               key={ticket.ticket_id}
               onClick={() => onSelectTicket(ticket.ticket_id)}
@@ -82,7 +98,6 @@ export default function TicketTable({
                 {new Date(ticket.created_at).toLocaleDateString()}
               </td>
 
-              {/* 👑 ADMIN ONLY ACTIONS */}
               {user?.role === "admin" && (
                 <td className="p-4">
                   <button
