@@ -3,30 +3,40 @@ import { useEffect, useState } from "react";
 export default function AssignTickets() {
   const [tickets, setTickets] = useState([]);
   const [agents, setAgents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const token = localStorage.getItem("token");
 
-  // 🔥 fetch tickets
   const fetchTickets = async () => {
-    const res = await fetch("https://support-crm-q58l.onrender.com/api/tickets", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await res.json();
-    setTickets(data);
+    try {
+      const res = await fetch(
+        "https://support-crm-q58l.onrender.com/api/tickets",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = await res.json();
+      setTickets(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  // 🔥 fetch users (filter agents)
   const fetchAgents = async () => {
-    const res = await fetch("https://support-crm-q58l.onrender.com/api/users", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await res.json();
-    setAgents(data.filter((u) => u.role === "agent"));
+    try {
+      const res = await fetch(
+        "https://support-crm-q58l.onrender.com/api/users",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = await res.json();
+      setAgents(data.filter((u) => u.role === "agent"));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -34,75 +44,115 @@ export default function AssignTickets() {
     fetchAgents();
   }, []);
 
-  // 🔥 assign ticket
   const assignTicket = async (ticketId, agentId) => {
-    const res = await fetch(
-      `https://support-crm-q58l.onrender.com/api/tickets/${ticketId}/assign?agent_id=${agentId}`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    try {
+      const res = await fetch(
+        `https://support-crm-q58l.onrender.com/api/tickets/${ticketId}/assign?agent_id=${agentId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    if (res.ok) {
-      alert("Ticket assigned successfully");
-      fetchTickets();
-    } else {
-      alert("Failed to assign ticket");
+      if (res.ok) {
+        fetchTickets();
+      } else {
+        alert("Failed to assign ticket");
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+  const statusColor = (status) => {
+    switch (status) {
+      case "open":
+        return "bg-yellow-100 text-yellow-700";
+      case "in_progress":
+        return "bg-blue-100 text-blue-700";
+      case "closed":
+        return "bg-green-100 text-green-700";
+      default:
+        return "bg-gray-100 text-gray-600";
+    }
+  };
 
-      <h1 className="text-2xl font-bold mb-6">
-        Assign Tickets
-      </h1>
-
-      <div className="grid gap-4">
-
-        {tickets.map((ticket) => (
-  <div
-    key={ticket.ticket_id}
-    className="bg-white p-4 rounded-xl shadow flex justify-between items-center"
-  >
-    {/* Ticket Info */}
-    <div>
-      <p className="font-semibold">
-        {ticket.subject}
-      </p>
-
-      <p className="text-sm text-gray-500">
-        Status: {ticket.status}
-      </p>
-
-      <p className="text-xs text-gray-400">
-        Assigned: {ticket.agent_name || "Not Assigned"}
-      </p>
-    </div>
-
-    {/* Assign Section */}
-    <div className="flex gap-2 items-center">
-      <select
-        className="border p-2 rounded"
-        onChange={(e) =>
-          assignTicket(ticket.ticket_id, e.target.value)
-        }
-      >
-        <option value="">Select Agent</option>
-
-        {agents.map((agent) => (
-          <option key={agent.id} value={agent.id}>
-            {agent.name}
-          </option>
+  if (loading) {
+    return (
+      <div className="p-10 grid gap-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className="h-20 bg-gray-200 animate-pulse rounded-xl"
+          />
         ))}
-      </select>
-    </div>
-  </div>
-))}
+      </div>
+    );
+  }
 
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-6">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">
+          Ticket Assignment Panel
+        </h1>
+        <p className="text-gray-500">
+          Assign tickets to support agents efficiently
+        </p>
+      </div>
+
+      {/* Grid */}
+      <div className="grid gap-4">
+        {tickets.map((ticket) => (
+          <div
+            key={ticket.ticket_id}
+            className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-5 flex flex-col md:flex-row md:items-center md:justify-between"
+          >
+            {/* Left: Ticket Info */}
+            <div className="flex flex-col gap-2">
+              <h2 className="text-lg font-semibold text-gray-800">
+                {ticket.subject}
+              </h2>
+
+              <span
+                className={`w-fit px-3 py-1 text-xs font-semibold rounded-full ${statusColor(
+                  ticket.status
+                )}`}
+              >
+                {ticket.status.toUpperCase()}
+              </span>
+
+              <p className="text-sm text-gray-500">
+                Assigned to:{" "}
+                <span className="font-medium">
+                  {ticket.agent_name || "Not Assigned"}
+                </span>
+              </p>
+            </div>
+
+            {/* Right: Assign */}
+            <div className="mt-4 md:mt-0 flex items-center gap-2">
+              <select
+                className="px-3 py-2 border rounded-lg bg-gray-50 hover:bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                onChange={(e) =>
+                  assignTicket(ticket.ticket_id, e.target.value)
+                }
+                defaultValue=""
+              >
+                <option value="">Assign Agent</option>
+
+                {agents.map((agent) => (
+                  <option key={agent.id} value={agent.id}>
+                    {agent.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
