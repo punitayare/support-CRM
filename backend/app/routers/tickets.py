@@ -100,51 +100,7 @@ def get_all_tickets_route(
 # FRONTEND: MyTickets.jsx (CUSTOMER PAGE)
 # =========================================================
 
-# =========================================================
-# 🟠 AGENT MY ASSIGNED TICKETS
-# FRONTEND: AgentTickets.jsx
-# =========================================================
-@router.get("/my")
-def get_my_tickets(
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user)
-):
-    role = user["role"].lower()
 
-    query = db.query(Ticket).options(joinedload(Ticket.agent))
-
-    # CUSTOMER → only own tickets
-    if role == "customer":
-        query = query.filter(Ticket.user_id == user["user_id"])
-
-    # AGENT → assigned tickets
-    elif role == "agent":
-        query = query.filter(Ticket.assigned_to == user["user_id"])
-
-    # ADMIN → all tickets
-    elif role == "admin":
-        pass  # no filter
-
-    else:
-        raise HTTPException(403, "Invalid role")
-
-    tickets = query.order_by(Ticket.created_at.desc()).all()
-
-    return [
-        {
-            "ticket_id": t.ticket_id,
-            "subject": t.subject,
-            "status": t.status,
-            "created_at": t.created_at,
-            "customer_name": t.customer_name,
-            "customer_email": t.customer_email,
-            "assigned_to": t.assigned_to,
-            "agent_name": t.agent.name if t.agent else None,
-            "description": t.description,
-            "user_id": t.user_id,
-        }
-        for t in tickets
-    ]
 # =========================================================
 # 🔍 GET SINGLE TICKET (DETAIL VIEW PAGE)
 # FRONTEND: Ticket details modal/page
