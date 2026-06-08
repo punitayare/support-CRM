@@ -6,8 +6,9 @@ from app.models import User
 import traceback
 from auth.security import hash_password, verify_password, create_access_token
 from pydantic import BaseModel
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 router = APIRouter(prefix="/auth", tags=["Auth"])
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login-form")
 class RegisterRequest(BaseModel):
     name: str
     email: str
