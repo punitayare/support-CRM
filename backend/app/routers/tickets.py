@@ -109,20 +109,26 @@ def get_my_tickets(
     db: Session = Depends(get_db),
     user=Depends(get_current_user)
 ):
-    print("CURRENT USER:", user)
+    role = user["role"].lower()
 
-    if user["role"].lower() != "customer":
-        raise HTTPException(status_code=403, detail="Only customers allowed")
+    query = db.query(Ticket).options(joinedload(Ticket.agent))
 
-    tickets = (
-        db.query(Ticket)
-        .options(joinedload(Ticket.agent))
-        .filter(Ticket.user_id == user["user_id"])
-        .order_by(Ticket.created_at.desc())
-        .all()
-    )
+    # CUSTOMER → only own tickets
+    if role == "customer":
+        query = query.filter(Ticket.user_id == user["user_id"])
 
-    print("TICKETS FOUND:", len(tickets))
+    # AGENT → assigned tickets
+    elif role == "agent":
+        query = query.filter(Ticket.assigned_to == user["user_id"])
+
+    # ADMIN → all tickets
+    elif role == "admin":
+        pass  # no filter
+
+    else:
+        raise HTTPException(403, "Invalid role")
+
+    tickets = query.order_by(Ticket.created_at.desc()).all()
 
     return [
         {
@@ -139,7 +145,6 @@ def get_my_tickets(
         }
         for t in tickets
     ]
-
 # =========================================================
 # 🔍 GET SINGLE TICKET (DETAIL VIEW PAGE)
 # FRONTEND: Ticket details modal/page
