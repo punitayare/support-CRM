@@ -31,21 +31,7 @@ export default function TicketTable({
   };
 
   // 🔥 ROLE-BASED FILTER (frontend safety layer)
-  const filteredTickets = tickets.filter((t) => {
-    if (!user) return false;
-
-    if (user.role === "admin") return true;
-
-    if (user.role === "customer") {
-      return t.user_id === user.user_id;
-    }
-
-    if (user.role === "agent") {
-      return t.assigned_to === user.user_id;
-    }
-
-    return false;
-  });
+  const filteredTickets = tickets;
 
   return (
     <div className="bg-white rounded-2xl shadow overflow-hidden">
