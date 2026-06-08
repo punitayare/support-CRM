@@ -7,10 +7,17 @@ export default function TicketTable({
   selectedTicket,
   user,
 }) {
-  const getStatusColor = (status) => {
-    if (status === "Open") return "bg-blue-100 text-blue-700";
-    if (status === "In Progress") return "bg-orange-100 text-orange-700";
-    return "bg-green-100 text-green-700";
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "Open":
+        return "bg-gradient-to-r from-blue-500 to-indigo-500 text-white";
+      case "In Progress":
+        return "bg-gradient-to-r from-orange-400 to-yellow-500 text-white";
+      case "Closed":
+        return "bg-gradient-to-r from-green-500 to-emerald-500 text-white";
+      default:
+        return "bg-gray-400 text-white";
+    }
   };
 
   const handleDelete = async (ticketId) => {
@@ -22,85 +29,90 @@ export default function TicketTable({
 
     try {
       await api.delete(`/api/tickets/${ticketId}`);
-      alert("Ticket deleted successfully");
       refreshTickets();
     } catch (error) {
       console.error(error);
-      alert("Failed to delete ticket");
     }
   };
 
-  // 🔥 ROLE-BASED FILTER (frontend safety layer)
-  const filteredTickets = tickets;
-
   return (
-    <div className="bg-white rounded-2xl shadow overflow-hidden">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b">
-            <th className="p-4 text-left">ID</th>
-            <th className="p-4 text-left">Customer</th>
-            <th className="p-4 text-left">Subject</th>
-            <th className="p-4 text-left">Status</th>
-            <th className="p-4 text-left">Date</th>
+    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+      
+      {/* HEADER ROW */}
+      <div className="grid grid-cols-6 bg-gradient-to-r from-indigo-50 to-blue-50 text-gray-700 font-semibold text-sm">
+        <div className="p-4">ID</div>
+        <div className="p-4">Customer</div>
+        <div className="p-4">Subject</div>
+        <div className="p-4">Status</div>
+        <div className="p-4">Date</div>
+        {user?.role === "admin" && <div className="p-4">Actions</div>}
+      </div>
 
+      {/* ROWS */}
+      <div className="divide-y divide-gray-100">
+        {tickets.map((ticket) => (
+          <div
+            key={ticket.ticket_id}
+            onClick={() => onSelectTicket(ticket.ticket_id)}
+            className={`
+              grid grid-cols-6 items-center cursor-pointer px-2 py-3
+              transition-all duration-200
+              hover:bg-indigo-50 hover:shadow-sm
+              ${
+                selectedTicket === ticket.ticket_id
+                  ? "bg-indigo-100"
+                  : ""
+              }
+            `}
+          >
+            {/* ID */}
+            <div className="p-2 font-medium text-gray-700">
+              #{ticket.ticket_id}
+            </div>
+
+            {/* CUSTOMER */}
+            <div className="p-2 text-gray-700">
+              {ticket.customer_name}
+            </div>
+
+            {/* SUBJECT */}
+            <div className="p-2 font-medium text-gray-800">
+              {ticket.subject}
+            </div>
+
+            {/* STATUS */}
+            <div className="p-2">
+              <span
+                className={`px-3 py-1 text-xs font-bold rounded-full shadow-md ${getStatusStyle(
+                  ticket.status
+                )}`}
+              >
+                {ticket.status.toUpperCase()}
+              </span>
+            </div>
+
+            {/* DATE */}
+            <div className="p-2 text-sm text-gray-500">
+              {new Date(ticket.created_at).toLocaleDateString()}
+            </div>
+
+            {/* ACTIONS */}
             {user?.role === "admin" && (
-              <th className="p-4 text-left">Actions</th>
-            )}
-          </tr>
-        </thead>
-
-        <tbody>
-          {filteredTickets.map((ticket) => (
-            <tr
-              key={ticket.ticket_id}
-              onClick={() => onSelectTicket(ticket.ticket_id)}
-              className={`
-                border-b cursor-pointer transition-all duration-200 hover:bg-indigo-50
-                ${
-                  selectedTicket === ticket.ticket_id
-                    ? "bg-indigo-100"
-                    : ""
-                }
-              `}
-            >
-              <td className="p-4">{ticket.ticket_id}</td>
-
-              <td className="p-4">{ticket.customer_name}</td>
-
-              <td className="p-4">{ticket.subject}</td>
-
-              <td className="p-4">
-                <span
-                  className={`px-3 py-1 rounded-full text-sm ${getStatusColor(
-                    ticket.status
-                  )}`}
+              <div className="p-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(ticket.ticket_id);
+                  }}
+                  className="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-600 hover:bg-red-600 hover:text-white transition"
                 >
-                  {ticket.status}
-                </span>
-              </td>
-
-              <td className="p-4">
-                {new Date(ticket.created_at).toLocaleDateString()}
-              </td>
-
-              {user?.role === "admin" && (
-                <td className="p-4">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(ticket.ticket_id);
-                    }}
-                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg transition"
-                  >
-                    Delete
-                  </button>
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
