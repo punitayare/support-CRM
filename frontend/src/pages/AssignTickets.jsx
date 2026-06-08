@@ -8,35 +8,26 @@ export default function AssignTickets() {
   const token = localStorage.getItem("token");
 
   const fetchTickets = async () => {
-    try {
-      const res = await fetch(
-        "https://support-crm-q58l.onrender.com/api/tickets",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const data = await res.json();
-      setTickets(data);
-    } catch (err) {
-      console.error(err);
-    }
+    const res = await fetch(
+      "https://support-crm-q58l.onrender.com/api/tickets",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    const data = await res.json();
+    setTickets(data);
   };
 
   const fetchAgents = async () => {
-    try {
-      const res = await fetch(
-        "https://support-crm-q58l.onrender.com/api/users",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const data = await res.json();
-      setAgents(data.filter((u) => u.role === "agent"));
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+    const res = await fetch(
+      "https://support-crm-q58l.onrender.com/api/users",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    const data = await res.json();
+    setAgents(data.filter((u) => u.role === "agent"));
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -45,37 +36,28 @@ export default function AssignTickets() {
   }, []);
 
   const assignTicket = async (ticketId, agentId) => {
-    try {
-      const res = await fetch(
-        `https://support-crm-q58l.onrender.com/api/tickets/${ticketId}/assign?agent_id=${agentId}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (res.ok) {
-        fetchTickets();
-      } else {
-        alert("Failed to assign ticket");
+    const res = await fetch(
+      `https://support-crm-q58l.onrender.com/api/tickets/${ticketId}/assign?agent_id=${agentId}`,
+      {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
       }
-    } catch (err) {
-      console.error(err);
-    }
+    );
+
+    if (res.ok) fetchTickets();
   };
 
-  const statusColor = (status) => {
+  // 🌈 STATUS COLORS (more vibrant)
+  const statusStyle = (status) => {
     switch (status) {
       case "open":
-        return "bg-yellow-100 text-yellow-700";
+        return "bg-gradient-to-r from-yellow-400 to-orange-400 text-white";
       case "in_progress":
-        return "bg-blue-100 text-blue-700";
+        return "bg-gradient-to-r from-blue-500 to-indigo-500 text-white";
       case "closed":
-        return "bg-green-100 text-green-700";
+        return "bg-gradient-to-r from-green-500 to-emerald-500 text-white";
       default:
-        return "bg-gray-100 text-gray-600";
+        return "bg-gray-400 text-white";
     }
   };
 
@@ -85,7 +67,7 @@ export default function AssignTickets() {
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="h-20 bg-gray-200 animate-pulse rounded-xl"
+            className="h-20 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded-2xl"
           />
         ))}
       </div>
@@ -93,63 +75,70 @@ export default function AssignTickets() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-gray-200 p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-blue-50 to-purple-100 p-6">
+      {/* HEADER */}
+      <div className="mb-8 p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow-lg border border-white">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 text-transparent bg-clip-text">
           Ticket Assignment Panel
         </h1>
-        <p className="text-gray-500">
-          Assign tickets to support agents efficiently
+        <p className="text-gray-600 mt-1">
+          Assign tickets to agents in real time 🚀
         </p>
       </div>
 
-      {/* Grid */}
-      <div className="grid gap-4">
+      {/* CARDS */}
+      <div className="grid gap-5">
         {tickets.map((ticket) => (
           <div
             key={ticket.ticket_id}
-            className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-5 flex flex-col md:flex-row md:items-center md:justify-between"
+            className="relative bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 p-5 border-l-4 border-indigo-400 hover:scale-[1.01]"
           >
-            {/* Left: Ticket Info */}
-            <div className="flex flex-col gap-2">
-              <h2 className="text-lg font-semibold text-gray-800">
-                {ticket.subject}
-              </h2>
+            {/* Glow background accent */}
+            <div className="absolute inset-0 rounded-2xl opacity-0 hover:opacity-10 bg-gradient-to-r from-indigo-400 to-blue-400 transition" />
 
-              <span
-                className={`w-fit px-3 py-1 text-xs font-semibold rounded-full ${statusColor(
-                  ticket.status
-                )}`}
-              >
-                {ticket.status.toUpperCase()}
-              </span>
+            <div className="relative flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+              
+              {/* LEFT */}
+              <div className="flex flex-col gap-2">
+                <h2 className="text-lg font-semibold text-gray-800">
+                  {ticket.subject}
+                </h2>
 
-              <p className="text-sm text-gray-500">
-                Assigned to:{" "}
-                <span className="font-medium">
-                  {ticket.agent_name || "Not Assigned"}
+                {/* STATUS BADGE */}
+                <span
+                  className={`w-fit px-3 py-1 text-xs font-bold rounded-full shadow-md ${statusStyle(
+                    ticket.status
+                  )}`}
+                >
+                  {ticket.status.toUpperCase()}
                 </span>
-              </p>
-            </div>
 
-            {/* Right: Assign */}
-            <div className="mt-4 md:mt-0 flex items-center gap-2">
-              <select
-                className="px-3 py-2 border rounded-lg bg-gray-50 hover:bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
-                onChange={(e) =>
-                  assignTicket(ticket.ticket_id, e.target.value)
-                }
-                defaultValue=""
-              >
-                <option value="">Assign Agent</option>
+                <p className="text-sm text-gray-500">
+                  Assigned to:{" "}
+                  <span className="font-semibold text-gray-700">
+                    {ticket.agent_name || "Not Assigned"}
+                  </span>
+                </p>
+              </div>
 
-                {agents.map((agent) => (
-                  <option key={agent.id} value={agent.id}>
-                    {agent.name}
-                  </option>
-                ))}
-              </select>
+              {/* RIGHT */}
+              <div className="flex items-center gap-2">
+                <select
+                  className="px-4 py-2 rounded-full border border-gray-200 bg-white shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                  onChange={(e) =>
+                    assignTicket(ticket.ticket_id, e.target.value)
+                  }
+                  defaultValue=""
+                >
+                  <option value="">🎯 Assign Agent</option>
+
+                  {agents.map((agent) => (
+                    <option key={agent.id} value={agent.id}>
+                      {agent.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         ))}
