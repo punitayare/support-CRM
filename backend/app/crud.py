@@ -81,7 +81,7 @@ def update_ticket(db: Session, ticket, status, note):
     allowed_statuses = [
         "Open",
         "In Progress",
-        "Resolved"
+        "Closed"
     ]
 
     if status:
@@ -92,10 +92,11 @@ def update_ticket(db: Session, ticket, status, note):
 
     ticket.updated_at = datetime.utcnow()
 
-    if note:
+    # Create note only if note contains text
+    if note and note.strip():
         new_note = Note(
             ticket_ref=ticket.id,
-            note_text=note,
+            note_text=note.strip(),
             created_at=datetime.utcnow()
         )
         db.add(new_note)

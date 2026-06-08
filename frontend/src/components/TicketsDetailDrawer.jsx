@@ -13,13 +13,10 @@ export default function TicketDetailsDrawer({
   const [note, setNote] = useState("");
   const [showNoteBox, setShowNoteBox] = useState(false);
 
-  // ✅ SAME AUTH SOURCE AS SIDEBAR
   const user = JSON.parse(localStorage.getItem("user") || "null");
 
-  // 🔐 ROLE NORMALIZATION
   const role = (user?.role || "").toLowerCase().trim();
-
-  const canAddNote = role === "admin" || role === "agent";
+  const canEdit = role === "admin" || role === "agent";
 
   const fetchTicket = async () => {
     try {
@@ -37,8 +34,30 @@ export default function TicketDetailsDrawer({
     }
   }, [ticketId, isOpen]);
 
-  const handleSave = async () => {
-    if (!canAddNote) return; // 🔒 safety check
+  // SAVE STATUS ONLY
+  const handleSaveStatus = async () => {
+    try {
+      await api.put(`/api/tickets/${ticketId}`, {
+        status,
+        note: null,
+      });
+
+      await fetchTicket();
+      refreshTickets?.();
+
+      alert("Status updated successfully");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to update status");
+    }
+  };
+
+  // ADD NOTE (OPTIONAL)
+  const handleSaveNote = async () => {
+    if (!note.trim()) {
+      alert("Please enter a note");
+      return;
+    }
 
     try {
       await api.put(`/api/tickets/${ticketId}`, {
@@ -49,10 +68,13 @@ export default function TicketDetailsDrawer({
       setNote("");
       setShowNoteBox(false);
 
-      fetchTicket();
+      await fetchTicket();
       refreshTickets?.();
+
+      alert("Note added successfully");
     } catch (error) {
       console.error(error);
+      alert("Failed to add note");
     }
   };
 
@@ -72,7 +94,7 @@ export default function TicketDetailsDrawer({
   return (
     <div className="fixed inset-0 z-50 bg-black/30 flex justify-end">
       <div className="w-[420px] bg-white h-full shadow-2xl flex flex-col overflow-hidden">
-
+        
         {/* HEADER */}
         <div className="p-6 border-b flex items-start justify-between">
           <div>
@@ -110,7 +132,6 @@ export default function TicketDetailsDrawer({
           <div className="p-6">Loading...</div>
         ) : (
           <>
-            {/* CONTENT */}
             <div className="flex-1 overflow-y-auto p-6 space-y-8">
 
               {/* TICKET DETAILS */}
@@ -120,10 +141,25 @@ export default function TicketDetailsDrawer({
                 </h3>
 
                 <div className="space-y-5">
-                  <InfoItem label="Customer Name" value={ticket.customer_name} />
-                  <InfoItem label="Email" value={ticket.customer_email} />
-                  <InfoItem label="Subject" value={ticket.subject} />
-                  <InfoItem label="Description" value={ticket.description} />
+                  <InfoItem
+                    label="Customer Name"
+                    value={ticket.customer_name}
+                  />
+
+                  <InfoItem
+                    label="Email"
+                    value={ticket.customer_email}
+                  />
+
+                  <InfoItem
+                    label="Subject"
+                    value={ticket.subject}
+                  />
+
+                  <InfoItem
+                    label="Description"
+                    value={ticket.description}
+                  />
 
                   <div>
                     <label className="text-slate-500 text-sm block mb-2">
@@ -133,6 +169,7 @@ export default function TicketDetailsDrawer({
                     <select
                       value={status}
                       onChange={(e) => setStatus(e.target.value)}
+                      disabled={!canEdit}
                       className="
                         w-full h-12 rounded-xl border border-slate-300
                         px-4 outline-none focus:ring-2 focus:ring-indigo-500
@@ -142,6 +179,18 @@ export default function TicketDetailsDrawer({
                       <option value="In Progress">In Progress</option>
                       <option value="Closed">Closed</option>
                     </select>
+
+                    {canEdit && (
+                      <button
+                        onClick={handleSaveStatus}
+                        className="
+                          mt-4 w-full bg-green-600 hover:bg-green-700
+                          text-white py-3 rounded-xl font-medium transition
+                        "
+                      >
+                        Save Changes
+                      </button>
+                    )}
                   </div>
                 </div>
               </section>
@@ -153,8 +202,7 @@ export default function TicketDetailsDrawer({
                     Notes & Updates
                   </h3>
 
-                  {/* 🔐 ONLY ADMIN / AGENT */}
-                  {canAddNote && (
+                  {canEdit && (
                     <button
                       onClick={() => setShowNoteBox(true)}
                       className="
@@ -181,10 +229,14 @@ export default function TicketDetailsDrawer({
 
                       <div>
                         <div className="flex justify-between">
-                          <h4 className="font-semibold">Support Agent</h4>
+                          <h4 className="font-semibold">
+                            Support Agent
+                          </h4>
 
                           <span className="text-sm text-slate-400">
-                            {new Date(item.created_at).toLocaleString()}
+                            {new Date(
+                              item.created_at
+                            ).toLocaleString()}
                           </span>
                         </div>
 
@@ -196,14 +248,16 @@ export default function TicketDetailsDrawer({
                   ))}
 
                   {!ticket.notes?.length && (
-                    <p className="text-slate-500">No notes available.</p>
+                    <p className="text-slate-500">
+                      No notes available.
+                    </p>
                   )}
                 </div>
               </section>
             </div>
 
-            {/* NOTE INPUT */}
-            {showNoteBox && canAddNote && (
+            {/* NOTE BOX */}
+            {showNoteBox && canEdit && (
               <div className="border-t p-5 bg-white">
                 <textarea
                   rows={4}
@@ -234,7 +288,7 @@ export default function TicketDetailsDrawer({
                   </button>
 
                   <button
-                    onClick={handleSave}
+                    onClick={handleSaveNote}
                     className="
                       w-1/2 bg-indigo-600 hover:bg-indigo-700
                       text-white h-12 rounded-xl font-medium
