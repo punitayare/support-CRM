@@ -50,16 +50,38 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/login")
-def login(data: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == data.email).first()
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
+    user = (
+        db.query(User)
+        .filter(User.email == form_data.username)
+        .first()
+    )
 
-    if not user or not verify_password(data.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid credentials"
+        )
 
-    token = create_access_token({
-        "user_id": user.id,
-        "role": user.role
-    })
+    if not verify_password(
+        form_data.password,
+        user.password
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid credentials"
+        )
+
+    token = create_access_token(
+        {
+            "user_id": user.id,
+            "role": user.role,
+            "name": user.name
+        }
+    )
 
     return {
         "access_token": token,
@@ -68,6 +90,6 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
             "id": user.id,
             "name": user.name,
             "email": user.email,
-            "role": user.role
-        }
+            "role": user.role,
+        },
     }
