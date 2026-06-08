@@ -220,29 +220,36 @@ PUT /api/tickets/{ticket_id}/assign?agent_id=1
 - Admin → all tickets
 
 ---
+# 📌 Support CRM System
 
-## 🔹 Access Control Example
-```python
-if user["role"] == "customer":
-    query = query.filter(Ticket.user_id == user["user_id"])
+A full-stack **Customer Support Ticketing CRM System** built using **FastAPI, SQLAlchemy, PostgreSQL, and React (Vite)** with full **role-based access control (RBAC)** and cloud deployment (Render + Vercel).
 
-elif user["role"] == "agent":
-    query = query.filter(Ticket.assigned_to == user["user_id"])
-🔹 Search Logic
-Uses SQLAlchemy ilike()
-Searches across:
-subject
-customer_name
-email
-ticket_id
-🗄️ Database Schema
-Users Table
+---
+
+## 🚀 Features
+
+- 🔐 JWT Authentication
+- 🧠 Role-Based Access Control (Customer / Agent / Admin)
+- 🎫 Ticket Management System
+- 🔍 Advanced Search (subject, email, ticket_id, name)
+- 📊 Status Tracking (Open / In Progress / Resolved)
+- 🌐 Full-stack deployment (Render + Vercel)
+
+---
+
+## 🗄️ Database Schema
+
+### Users Table
+```sql
 id
 name
 email
 password (hashed)
 role
-Tickets Table
+```
+
+### Tickets Table
+```sql
 ticket_id
 subject
 status
@@ -252,7 +259,42 @@ user_id
 assigned_to
 created_at
 updated_at
-🔐 Authentication Flow
+```
+
+---
+
+## 🔐 Role-Based Filtering Logic
+
+```python
+if user["role"] == "customer":
+    query = query.filter(Ticket.user_id == user["user_id"])
+
+elif user["role"] == "agent":
+    query = query.filter(Ticket.assigned_to == user["user_id"])
+```
+
+---
+
+## 🔍 Search Logic
+
+Uses SQLAlchemy `ilike()` for flexible searching:
+
+```python
+query.filter(
+    or_(
+        Ticket.subject.ilike(f"%{search}%"),
+        Ticket.customer_name.ilike(f"%{search}%"),
+        Ticket.customer_email.ilike(f"%{search}%"),
+        Ticket.ticket_id.ilike(f"%{search}%")
+    )
+)
+```
+
+---
+
+## 🔐 Authentication Flow
+
+```text
 Login Request
      ↓
 JWT Token Generated
@@ -264,51 +306,89 @@ Sent via Axios Headers
 Backend validates token
      ↓
 Role-based access granted
-⚙️ Deployment
-🚀 Backend (Render)
-FastAPI deployed via Uvicorn
-PostgreSQL connected via Render DB
-Environment variables required:
-DATABASE_URL
-SECRET_KEY
+```
 
-Run command:
+---
 
+## ⚙️ Deployment
+
+### 🚀 Backend (Render)
+
+- FastAPI (Uvicorn)
+- PostgreSQL (Render DB)
+
+#### Environment Variables
+```env
+DATABASE_URL=your_database_url
+SECRET_KEY=your_secret_key
+```
+
+#### Run Command
+```bash
 uvicorn app.main:app --host 0.0.0.0 --port $PORT
-🌐 Frontend (Vercel)
-React (Vite) deployed on Vercel
-API base URL configured via environment variable:
-VITE_API_URL = https://your-backend-url
-🧪 Key Technical Highlights
-⚡ SQLAlchemy ORM for database abstraction
-🔐 JWT-based authentication
+```
+
+---
+
+### 🌐 Frontend (Vercel)
+
+- React (Vite)
+
+#### Environment Variables
+```env
+VITE_API_URL=https://your-backend-url
+```
+
+---
+
+## 🧪 Key Technical Highlights
+
+```text
+⚡ SQLAlchemy ORM
+🔐 JWT Authentication
 🧠 Role-Based Access Control (RBAC)
-🔄 RESTful API architecture
-📦 Modular backend (routes / crud / models / schemas)
-🌍 Full cloud deployment (Render + Vercel)
-📈 System Workflow
-User → Creates Ticket
+🔄 RESTful API Architecture
+📦 Modular Backend Structure
+🌍 Cloud Deployment (Render + Vercel)
+```
+
+---
+
+## 📈 System Workflow
+
+```text
+User creates ticket
         ↓
-Admin → Assigns Ticket
+Admin assigns ticket
         ↓
-Agent → Resolves Ticket
+Agent resolves ticket
         ↓
-User → Tracks Status
-🚀 Future Enhancements
+User tracks status
+```
+
+---
+
+## 🚀 Future Enhancements
+
+```text
 🔔 Real-time notifications (WebSockets)
 📧 Email alerts for ticket updates
 💬 Internal ticket chat system
 📊 Analytics dashboard (charts)
-⏱️ SLA timer tracking
+⏱️ SLA tracking
 📎 File attachments in tickets
-🏁 Conclusion
+```
 
-This Support CRM is a full-stack production-grade system demonstrating:
+---
 
-Real-world backend engineering
-Scalable database design
-Secure authentication system
-Role-based workflow automation
-Cloud deployment architecture
+## 🏁 Conclusion
 
-It closely mimics enterprise-level customer support platforms.
+This Support CRM is a **production-grade full-stack system** demonstrating:
+
+- Real-world backend engineering
+- Scalable database design
+- Secure authentication system
+- Role-based workflow automation
+- Cloud deployment architecture
+
+👉 It closely simulates enterprise-level customer support platforms.
