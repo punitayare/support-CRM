@@ -36,7 +36,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-700 to-sky-500 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white-900 via-grey-700 to-white-500 px-4">
 
       {/* CARD */}
       <div className="w-full max-w-md bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl rounded-3xl p-8">
