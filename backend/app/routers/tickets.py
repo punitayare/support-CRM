@@ -19,7 +19,7 @@ router = APIRouter(prefix="/api/tickets", tags=["Tickets"])
 def create_new_ticket(
     data: TicketCreate,
     db: Session = Depends(get_db),
-    user=Depends(require_role("customer"))
+    user=Depends(get_current_user)
 ):
     ticket = create_ticket(
         db,
