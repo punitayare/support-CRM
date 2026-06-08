@@ -257,10 +257,6 @@ uvicorn app.main:app --host 0.0.0.0 --port $PORT
 
 - React (Vite)
 
-### Environment Variables
-```env
-VITE_API_URL=https://your-backend-url
-```
 
 ---
 
