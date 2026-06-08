@@ -13,18 +13,12 @@ def create_ticket(db: Session, data, user_id: int):
 
     ticket = Ticket(
         ticket_id=f"TKT-{str(uuid.uuid4())[:8]}",
-
         customer_name=data.customer_name,
         customer_email=data.customer_email,
         subject=data.subject,
         description=data.description,
-
-        # 🔥 consistent status format
-        status="open",
-
-        # 🔥 OWNER (customer who created ticket)
+        status="Open",
         user_id=user_id,
-
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
@@ -34,7 +28,6 @@ def create_ticket(db: Session, data, user_id: int):
     db.refresh(ticket)
 
     return ticket
-
 
 # =========================================================
 # 🔵 GET ALL TICKETS (ADMIN / FILTER USE)
@@ -87,13 +80,20 @@ def get_ticket(db: Session, ticket_id: str):
 # =========================================================
 def update_ticket(db: Session, ticket, status, note):
 
-    # 🔥 normalize status
+    allowed_statuses = [
+        "Open",
+        "In Progress",
+        "Resolved"
+    ]
+
     if status:
-        ticket.status = status.lower()
+        if status not in allowed_statuses:
+            raise ValueError("Invalid status")
+
+        ticket.status = status
 
     ticket.updated_at = datetime.utcnow()
 
-    # 📝 add internal note if provided
     if note:
         new_note = Note(
             ticket_ref=ticket.id,
@@ -106,8 +106,6 @@ def update_ticket(db: Session, ticket, status, note):
     db.refresh(ticket)
 
     return ticket
-
-
 # =========================================================
 # 🔴 DELETE TICKET
 # USED BY: Admin dashboard delete button

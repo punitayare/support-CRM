@@ -1,3 +1,5 @@
+from operator import or_
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from ..database import get_db
@@ -64,7 +66,14 @@ def get_all_tickets_route(
         query = query.filter(Ticket.status == status)
 
     if search:
-        query = query.filter(Ticket.subject.contains(search))
+      query = query.filter(
+    or_(
+        Ticket.subject.ilike(f"%{search}%"),
+        Ticket.customer_name.ilike(f"%{search}%"),
+        Ticket.customer_email.ilike(f"%{search}%"),
+        Ticket.ticket_id.ilike(f"%{search}%")
+    )
+)
 
     tickets = query.order_by(Ticket.created_at.desc()).all()
 

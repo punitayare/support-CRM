@@ -6,7 +6,7 @@ from app.models import User
 import traceback
 from auth.security import hash_password, verify_password, create_access_token
 from pydantic import BaseModel
-
+from fastapi.security import OAuth2PasswordRequestForm
 router = APIRouter(prefix="/auth", tags=["Auth"])
 class RegisterRequest(BaseModel):
     name: str
@@ -47,7 +47,6 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
     db.refresh(user)
 
     return {"message": "User created successfully"}
-
 
 
 @router.post("/login")
