@@ -56,13 +56,10 @@ def create_admin():
 # LIFESPAN EVENT (FIXED STARTUP)
 # -----------------------
 @asynccontextmanager
-def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI):
     print("🚀 Application starting up...")
 
-    # create tables
     Base.metadata.create_all(bind=engine)
-
-    # seed admin
     create_admin()
 
     yield
