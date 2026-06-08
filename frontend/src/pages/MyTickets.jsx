@@ -20,10 +20,19 @@ export default function MyTickets() {
         }
       );
 
-      setTickets(res.data);
+      console.log("MY TICKETS RESPONSE:", res.data);
+
+      setTickets(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error(err);
-      alert("Failed to load your tickets");
+      console.error("MY TICKETS ERROR:", err);
+
+      console.log("Status:", err.response?.status);
+      console.log("Response:", err.response?.data);
+
+      alert(
+        err.response?.data?.detail ||
+          "Failed to load your tickets"
+      );
     } finally {
       setLoading(false);
     }
@@ -33,29 +42,82 @@ export default function MyTickets() {
     fetchMyTickets();
   }, []);
 
+  const getStatusColor = (status) => {
+    if (status === "Open")
+      return "bg-blue-100 text-blue-700";
+
+    if (status === "In Progress")
+      return "bg-orange-100 text-orange-700";
+
+    if (
+      status === "Resolved" ||
+      status === "Closed"
+    )
+      return "bg-green-100 text-green-700";
+
+    return "bg-gray-100 text-gray-700";
+  };
+
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">My Tickets</h1>
+      <h1 className="text-2xl font-bold mb-6">
+        My Tickets
+      </h1>
 
       {loading ? (
-        <p>Loading...</p>
+        <p className="text-gray-500">
+          Loading tickets...
+        </p>
       ) : tickets.length === 0 ? (
-        <p className="text-gray-500">No tickets found</p>
+        <p className="text-gray-500">
+          No tickets found
+        </p>
       ) : (
         <div className="grid gap-4">
-          {tickets.map((t) => (
-            <div key={t.ticket_id} className="p-4 bg-white shadow rounded-xl">
+          {tickets.map((ticket) => (
+            <div
+              key={ticket.ticket_id}
+              className="bg-white p-5 rounded-xl shadow"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <h2 className="font-semibold text-lg">
+                    {ticket.subject}
+                  </h2>
 
-              <h2 className="font-semibold">{t.subject}</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Ticket ID: {ticket.ticket_id}
+                  </p>
+                </div>
 
-              <div className="text-sm text-gray-500">
-                Status: {t.status}
+                <span
+                  className={`px-3 py-1 rounded-full text-sm ${getStatusColor(
+                    ticket.status
+                  )}`}
+                >
+                  {ticket.status}
+                </span>
               </div>
 
-              <div className="text-xs text-gray-400 mt-1">
-                Assigned: {t.agent_name || "Not Assigned"}
-              </div>
+              <div className="mt-4 space-y-2">
+                <p className="text-sm">
+                  <strong>Description:</strong>{" "}
+                  {ticket.description}
+                </p>
 
+                <p className="text-sm">
+                  <strong>Assigned Agent:</strong>{" "}
+                  {ticket.agent_name ||
+                    "Not Assigned"}
+                </p>
+
+                <p className="text-sm">
+                  <strong>Created:</strong>{" "}
+                  {new Date(
+                    ticket.created_at
+                  ).toLocaleString()}
+                </p>
+              </div>
             </div>
           ))}
         </div>
