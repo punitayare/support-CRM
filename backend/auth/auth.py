@@ -3,12 +3,29 @@ from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.models import User
-import traceback
-from auth.security import hash_password, verify_password, create_access_token
+
+from auth.security import (
+    hash_password,
+    verify_password,
+    create_access_token
+)
+
 from pydantic import BaseModel
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import (
+    OAuth2PasswordBearer,
+    OAuth2PasswordRequestForm
+)
+
 router = APIRouter(prefix="/auth", tags=["Auth"])
+
+
+# ✅ IMPORTANT: Swagger OAuth2 config
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login-form")
+
+
+# -----------------------
+# SCHEMAS
+# -----------------------
 class RegisterRequest(BaseModel):
     name: str
     email: str
@@ -18,7 +35,11 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
-# DB dependency
+
+
+# -----------------------
+# DB SESSION
+# -----------------------
 def get_db():
     db = SessionLocal()
     try:
@@ -27,8 +48,9 @@ def get_db():
         db.close()
 
 
+# -----------------------
 # REGISTER
-
+# -----------------------
 @router.post("/register")
 def register(data: RegisterRequest, db: Session = Depends(get_db)):
     existing = db.query(User).filter(User.email == data.email).first()
@@ -50,6 +72,9 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
     return {"message": "User created successfully"}
 
 
+# -----------------------
+# LOGIN (FRONTEND JSON LOGIN)
+# -----------------------
 @router.post("/login")
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
@@ -74,16 +99,20 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
     }
 
 
-
 # -----------------------
-# LOGIN (SWAGGER / DOCS ONLY)
+# LOGIN (SWAGGER ONLY FIX)
 # -----------------------
 @router.post("/login-form")
 def login_form(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
-    # Swagger sends username/password (NOT email field)
+    """
+    Swagger OAuth login requires:
+    - username field (we treat it as email)
+    - password field
+    """
+
     user = db.query(User).filter(User.email == form_data.username).first()
 
     if not user or not verify_password(form_data.password, user.hashed_password):
@@ -97,4 +126,15 @@ def login_form(
     return {
         "access_token": token,
         "token_type": "bearer"
+    }
+
+
+# -----------------------
+# TEST ENDPOINT (IMPORTANT FOR SWAGGER AUTH)
+# -----------------------
+@router.get("/me")
+def get_me(token: str = Depends(oauth2_scheme)):
+    return {
+        "message": "Swagger auth working",
+        "token_received": token
     }
