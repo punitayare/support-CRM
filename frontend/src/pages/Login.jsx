@@ -41,85 +41,85 @@ export default function Login() {
     setPassword("admin123");
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white-900 via-grey-700 to-white-500 px-4">
+ return (
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-4">
 
-      {/* BACKDROP CARD */}
-      <div className="w-full max-w-md bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl rounded-3xl p-8">
+    {/* CARD */}
+    <div className="w-full max-w-md bg-white border border-gray-200 shadow-xl rounded-3xl p-8">
 
-        {/* HEADER */}
-        <div className="text-center mb-8">
-          <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-blue-500 flex items-center justify-center shadow-lg">
-            <span className="text-white font-bold text-xl">S</span>
-          </div>
-
-          <h2 className="text-3xl font-bold text-white">
-            Welcome Back
-          </h2>
-
-          <p className="text-blue-100 mt-2 text-sm">
-            Sign in to your SupportCRM dashboard
-          </p>
+      {/* HEADER */}
+      <div className="text-center mb-8">
+        <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-blue-600 flex items-center justify-center shadow-md">
+          <span className="text-white font-bold text-xl">S</span>
         </div>
 
-        {/* EMAIL */}
-        <div className="mb-4">
-          <label className="text-blue-100 text-sm">Email</label>
-          <input
-            className="w-full mt-2 p-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200 outline-none focus:ring-2 focus:ring-blue-300 transition"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+        <h2 className="text-3xl font-bold text-gray-900">
+          Welcome Back
+        </h2>
 
-        {/* PASSWORD */}
-        <div className="mb-6">
-          <label className="text-blue-100 text-sm">Password</label>
-          <input
-            type="password"
-            className="w-full mt-2 p-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200 outline-none focus:ring-2 focus:ring-blue-300 transition"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-
-        {/* LOGIN BUTTON */}
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg transition transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
-        >
-          {loading ? "Signing in..." : "Sign In"}
-        </button>
-
-        {/* DIVIDER */}
-        <div className="my-6 flex items-center gap-3">
-          <div className="flex-1 h-px bg-white/20"></div>
-          <span className="text-blue-100 text-sm">or</span>
-          <div className="flex-1 h-px bg-white/20"></div>
-        </div>
-
-        {/* DEMO BUTTON */}
-        <button
-          onClick={fillDemo}
-          className="w-full py-2 rounded-xl bg-white/10 border border-white/20 text-blue-100 hover:bg-white/20 transition"
-        >
-          Use Admin Demo Account
-        </button>
-
-        {/* FOOTER */}
-        <p className="text-center text-blue-100 mt-6 text-sm">
-          Don’t have an account?{" "}
-          <span
-            onClick={() => navigate("/register")}
-            className="text-white font-semibold cursor-pointer hover:underline"
-          >
-            Create account
-          </span>
+        <p className="text-gray-500 mt-2 text-sm">
+          Sign in to your SupportCRM dashboard
         </p>
       </div>
+
+      {/* EMAIL */}
+      <div className="mb-4">
+        <label className="text-gray-700 text-sm">Email</label>
+        <input
+          className="w-full mt-2 p-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500 transition"
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+
+      {/* PASSWORD */}
+      <div className="mb-6">
+        <label className="text-gray-700 text-sm">Password</label>
+        <input
+          type="password"
+          className="w-full mt-2 p-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500 transition"
+          placeholder="••••••••"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+
+      {/* LOGIN BUTTON */}
+      <button
+        onClick={handleLogin}
+        disabled={loading}
+        className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md transition transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+      >
+        {loading ? "Signing in..." : "Sign In"}
+      </button>
+
+      {/* DIVIDER */}
+      <div className="my-6 flex items-center gap-3">
+        <div className="flex-1 h-px bg-gray-200"></div>
+        <span className="text-gray-400 text-sm">or</span>
+        <div className="flex-1 h-px bg-gray-200"></div>
+      </div>
+
+      {/* DEMO BUTTON */}
+      <button
+        onClick={fillDemo}
+        className="w-full py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 hover:bg-gray-200 transition"
+      >
+        Use Admin Demo Account
+      </button>
+
+      {/* FOOTER */}
+      <p className="text-center text-gray-600 mt-6 text-sm">
+        Don’t have an account?{" "}
+        <span
+          onClick={() => navigate("/register")}
+          className="text-blue-600 font-semibold cursor-pointer hover:underline"
+        >
+          Create account
+        </span>
+      </p>
     </div>
-  );
+  </div>
+);
 }
