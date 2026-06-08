@@ -32,7 +32,7 @@ export default function UsersAdmin() {
   const updateRole = async (userId, newRole) => {
     try {
       const res = await fetch(
-        `http://localhost:8000/api/users/${userId}/role`,
+        `https://support-crm-q58l.onrender.com/api/users/${userId}/role`,
         {
           method: "PUT",
           headers: {
