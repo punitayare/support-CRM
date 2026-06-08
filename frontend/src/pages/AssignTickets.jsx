@@ -93,7 +93,7 @@ export default function AssignTickets() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-gray-200 p-6">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-800">
