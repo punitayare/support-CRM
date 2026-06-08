@@ -44,15 +44,13 @@ def get_tickets(db: Session, status=None, search=None):
         query = query.filter(Ticket.status == status)
 
     if search:
-        query = query.filter(
-            or_(
-                Ticket.customer_name.contains(search),
-                Ticket.customer_email.contains(search),
-                Ticket.subject.contains(search),
-                Ticket.description.contains(search),
-                Ticket.ticket_id.contains(search)
-            )
-        )
+        
+       query = query.filter(
+    Ticket.subject.ilike(f"%{search}%")
+    | Ticket.customer_name.ilike(f"%{search}%")
+    | Ticket.customer_email.ilike(f"%{search}%")
+    | Ticket.ticket_id.ilike(f"%{search}%")
+)
 
     return query.order_by(Ticket.created_at.desc()).all()
 

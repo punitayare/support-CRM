@@ -7,7 +7,7 @@ export default function AssignTickets() {
 
   // 🔥 fetch tickets
   const fetchTickets = async () => {
-    const res = await fetch("http://localhost:8000/api/tickets", {
+    const res = await fetch("https://support-crm-q58l.onrender.com/api/tickets", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -19,7 +19,7 @@ export default function AssignTickets() {
 
   // 🔥 fetch users (filter agents)
   const fetchAgents = async () => {
-    const res = await fetch("http://localhost:8000/api/users", {
+    const res = await fetch("http://support-crm-q58l.onrender.com/api/users", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
