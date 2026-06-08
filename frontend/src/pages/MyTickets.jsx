@@ -14,7 +14,7 @@ export default function MyTickets() {
       setError("");
 
       const res = await axios.get(
-        "https://support-crm-q58l.onrender.com/api/tickets/my",
+        "https://support-crm-q58l.onrender.com/api/tickets/",
         {
           headers: {
             Authorization: `Bearer ${token}`,
