@@ -10,15 +10,14 @@ export default function MyTickets() {
   const fetchMyTickets = async () => {
     try {
       setLoading(true);
-
-      const res = await axios.get(
-        "https://support-crm-q58l.onrender.com/api/tickets/my",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+const res = await axios.get(
+  "https://support-crm-q58l.onrender.com/api/tickets/",
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
 
       console.log("MY TICKETS RESPONSE:", res.data);
 
@@ -50,7 +49,6 @@ export default function MyTickets() {
       return "bg-orange-100 text-orange-700";
 
     if (
-      status === "Resolved" ||
       status === "Closed"
     )
       return "bg-green-100 text-green-700";
