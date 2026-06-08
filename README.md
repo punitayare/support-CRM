@@ -46,30 +46,40 @@ This project simulates a real-world SaaS support system where users raise ticket
 # 📁 Project Structure
 
 ## 🖥️ Backend Structure
-
-![Backend Structure](sandbox:/mnt/data/01f77e6e-ba0a-48d0-9cee-4a946a2743a8.png)
 backend/
+│── app/
+│   │── main.py
+│   │
+│   │── core/
+│   │   ├── config.py
+│   │   ├── database.py
+│   │
+│   │── models/
+│   │   ├── user.py
+│   │   ├── ticket.py
+│   │
+│   │── schemas/
+│   │   ├── user.py
+│   │   ├── ticket.py
+│   │
+│   │── crud/
+│   │   ├── user.py
+│   │   ├── ticket.py
+│   │
+│   │── api/
+│   │   │── routes/
+│   │   │   ├── auth.py
+│   │   │   ├── users.py
+│   │   │   ├── tickets.py
+│   │
+│   │── auth/
+│   │   ├── jwt.py
+│   │   ├── dependencies.py
+│   │   ├── security.py
 │
-├── app/
-│ ├── auth/
-│ │ ├── auth.py
-│ │ ├── dependencies.py
-│ │ ├── security.py
-│ │ └── users.py
-│ │
-│ ├── routers/
-│ │ ├── tickets.py ← MAIN CRM LOGIC
-│ │ ├── users.py
-│ │ └── auth.py
-│ │
-│ ├── database.py
-│ ├── models.py
-│ ├── schemas.py
-│ ├── crud.py
-│ └── main.py
-│
-├── requirements.txt
-└── .env
+│── requirements.txt
+│── .env
+
 
 
 ---
