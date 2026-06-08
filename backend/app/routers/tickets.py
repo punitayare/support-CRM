@@ -13,17 +13,17 @@ router = APIRouter(prefix="/api/tickets", tags=["Tickets"])
 # =========================================================
 # 🟢 CREATE TICKET
 # FRONTEND: Customer "Create Ticket" page / form
-# ROLE: customer only
+# ROLE: everyone
 # =========================================================
 @router.post("/")
 def create_new_ticket(
     data: TicketCreate,
     db: Session = Depends(get_db),
-    user=Depends(require_role("customer"))
+    user=Depends(get_current_user)
 ):
     ticket = create_ticket(db, data)
 
-    # assign owner (customer who created ticket)
+    # assign creator
     ticket.user_id = user["user_id"]
 
     db.commit()
