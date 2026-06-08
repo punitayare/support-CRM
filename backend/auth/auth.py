@@ -11,16 +11,13 @@ from auth.security import (
 )
 
 from pydantic import BaseModel
-from fastapi.security import (
-    OAuth2PasswordBearer,
-    OAuth2PasswordRequestForm
-)
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-# ✅ IMPORTANT: Swagger OAuth2 config
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login-form")
+# ✅ FIXED: Swagger OAuth2 (IMPORTANT)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 # -----------------------
@@ -73,7 +70,7 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
 
 
 # -----------------------
-# LOGIN (FRONTEND JSON LOGIN)
+# LOGIN (MAIN - FRONTEND)
 # -----------------------
 @router.post("/login")
 def login(data: LoginRequest, db: Session = Depends(get_db)):
@@ -100,19 +97,13 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
 
 
 # -----------------------
-# LOGIN (SWAGGER ONLY FIX)
+# LOGIN (SWAGGER COMPATIBLE)
 # -----------------------
 @router.post("/login-form")
 def login_form(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
-    """
-    Swagger OAuth login requires:
-    - username field (we treat it as email)
-    - password field
-    """
-
     user = db.query(User).filter(User.email == form_data.username).first()
 
     if not user or not verify_password(form_data.password, user.hashed_password):
@@ -130,11 +121,11 @@ def login_form(
 
 
 # -----------------------
-# TEST ENDPOINT (IMPORTANT FOR SWAGGER AUTH)
+# SWAGGER AUTH TEST
 # -----------------------
 @router.get("/me")
 def get_me(token: str = Depends(oauth2_scheme)):
     return {
-        "message": "Swagger auth working",
+        "message": "Swagger authentication working correctly",
         "token_received": token
     }
