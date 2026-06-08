@@ -85,6 +85,7 @@ def get_all_tickets_route(
             "status": t.status,
             "created_at": t.created_at,
  "customer_email": t.customer_email,
+  "user_id": t.user_id,  
             # UI DISPLAY FIELDS
             "customer_name": t.customer_name,
             "assigned_to": t.assigned_to,

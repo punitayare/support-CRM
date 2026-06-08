@@ -36,13 +36,13 @@ export default function TicketTable({
 
     if (user.role === "admin") return true;
 
-   if (user.role === "customer") {
-  return t.user_id === user.id;
-}
+    if (user.role === "customer") {
+      return t.user_id === user.user_id;
+    }
 
-if (user.role === "agent") {
-  return t.assigned_to === user.id;
-}
+    if (user.role === "agent") {
+      return t.assigned_to === user.user_id;
+    }
 
     return false;
   });
