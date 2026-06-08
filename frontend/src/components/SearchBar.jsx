@@ -6,67 +6,64 @@ export default function SearchBar({
   onCreateClick,
 }) {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
+    <div className="flex flex-col md:flex-row gap-4 mb-6">
 
-      {/* SEARCH INPUT */}
       <input
         type="text"
         placeholder="Search tickets..."
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={(e) =>
+          setSearch(e.target.value)
+        }
         className="
-          w-full
-          sm:flex-1
-          h-11
-          px-4
+          flex-1
+          p-3
           border
           rounded-xl
           focus:ring-2
           focus:ring-indigo-500
           outline-none
-          text-sm
         "
       />
 
-      {/* STATUS FILTER */}
       <select
         value={status}
-        onChange={(e) => setStatus(e.target.value)}
+        onChange={(e) =>
+          setStatus(e.target.value)
+        }
         className="
-          w-full
-          sm:w-auto
-          h-11
-          px-3
+          p-3
           border
           rounded-xl
           bg-white
-          text-sm
-          focus:ring-2
-          focus:ring-indigo-500
-          outline-none
         "
       >
-        <option value="">All Statuses</option>
-        <option value="Open">Open</option>
-        <option value="In Progress">In Progress</option>
-        <option value="Closed">Closed</option>
+        <option value="">
+          All Statuses
+        </option>
+
+        <option value="Open">
+          Open
+        </option>
+
+        <option value="In Progress">
+          In Progress
+        </option>
+
+        <option value="Closed">
+          Closed
+        </option>
       </select>
 
-      {/* CREATE BUTTON */}
       <button
         onClick={onCreateClick}
         className="
-          w-full
-          sm:w-auto
-          h-11
-          px-5
           bg-indigo-600
           text-white
+          px-5
+          py-3
           rounded-xl
           hover:bg-indigo-700
-          transition
-          text-sm
-          font-medium
         "
       >
         + Create Ticket

@@ -21,8 +21,6 @@ export default function Dashboard() {
   const [status, setStatus] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const fetchTickets = useCallback(
     async (searchValue = search, statusValue = status) => {
       try {
@@ -57,42 +55,29 @@ export default function Dashboard() {
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
 
-      {/* SIDEBAR (NEW FIXED SYSTEM) */}
-      <Sidebar
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
+      {/* SIDEBAR */}
+      <div className="shadow-xl">
+        <Sidebar />
+      </div>
 
       {/* MAIN */}
-      <main className="flex-1 ml-0 md:ml-72 p-3 sm:p-6 w-full overflow-x-hidden">
+      <main className="flex-1 p-6">
 
-        {/* TOP BAR */}
-        <div className="flex items-center gap-3 mb-4 sm:mb-6">
-
-          {/* MOBILE MENU BUTTON */}
-          <button
-            className="md:hidden text-2xl p-2"
-            onClick={() => setSidebarOpen(true)}
-          >
-            ☰
-          </button>
-
-          <div className="flex-1">
-            <Header />
-          </div>
-
+        {/* HEADER (Glass effect wrapper) */}
+        <div className="mb-6 p-5 rounded-2xl bg-white/60 backdrop-blur-md shadow-lg border border-white">
+          <Header />
         </div>
 
         {/* STATS */}
-        <div className="mb-4 sm:mb-6">
-          <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-3 sm:p-4 border border-gray-100">
+        <div className="mb-6">
+          <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-4 border border-gray-100">
             <StatsCards tickets={tickets} />
           </div>
         </div>
 
-        {/* SEARCH */}
-        <div className="mb-4 sm:mb-6">
-          <div className="bg-white rounded-2xl shadow-md p-3 sm:p-4 border border-gray-100 hover:shadow-lg transition">
+        {/* SEARCH BAR */}
+        <div className="mb-6">
+          <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-100 hover:shadow-lg transition">
             <SearchBar
               search={search}
               setSearch={setSearch}
@@ -103,34 +88,31 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* LOADING */}
+        {/* STATES */}
         {isLoading && (
-          <div className="p-3 sm:p-4 mb-4 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 animate-pulse text-sm sm:text-base">
+          <div className="p-4 mb-4 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 animate-pulse">
             Loading tickets...
           </div>
         )}
 
-        {/* ERROR */}
         {error && (
-          <div className="p-3 sm:p-4 mb-4 rounded-xl bg-red-50 text-red-600 border border-red-100 text-sm sm:text-base">
+          <div className="p-4 mb-4 rounded-xl bg-red-50 text-red-600 border border-red-100">
             {error}
           </div>
         )}
 
-        {/* TABLE */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-x-auto hover:shadow-2xl transition">
-          <div className="min-w-[700px]">
-            <TicketTable
-              tickets={tickets}
-              refreshTickets={fetchTickets}
-              selectedTicket={selectedTicketId}
-              user={JSON.parse(localStorage.getItem("user"))}
-              onSelectTicket={(id) => {
-                setSelectedTicketId(id);
-                setIsDrawerOpen(true);
-              }}
-            />
-          </div>
+        {/* TICKETS TABLE */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition">
+          <TicketTable
+            tickets={tickets}
+            refreshTickets={fetchTickets}
+            selectedTicket={selectedTicketId}
+            user={JSON.parse(localStorage.getItem("user"))}
+            onSelectTicket={(id) => {
+              setSelectedTicketId(id);
+              setIsDrawerOpen(true);
+            }}
+          />
         </div>
 
         {/* DRAWER */}
@@ -147,7 +129,6 @@ export default function Dashboard() {
           onClose={() => setIsModalOpen(false)}
           refreshTickets={fetchTickets}
         />
-
       </main>
     </div>
   );
